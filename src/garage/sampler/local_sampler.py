@@ -66,7 +66,6 @@ class LocalSampler(Sampler):
         else:
             self._factory = WorkerFactory(
                 max_episode_length=max_episode_length,
-                is_tf_worker=is_tf_worker,
                 seed=seed,
                 n_workers=n_workers,
                 worker_class=worker_class,

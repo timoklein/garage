@@ -11,8 +11,6 @@ from garage.experiment.deterministic import get_seed, set_seed
 from garage.experiment.experiment import dump_json
 from garage.experiment.snapshotter import Snapshotter
 
-tf = None
-
 
 class ExperimentStats:
     # pylint: disable=too-few-public-methods

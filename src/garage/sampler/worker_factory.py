@@ -55,12 +55,6 @@ class WorkerFactory:
         self.n_workers = n_workers
         self._seed = seed
         self._max_episode_length = max_episode_length
-        if is_tf_worker:
-            # Import here to avoid hard dependency on TF.
-            # pylint: disable=import-outside-toplevel
-            from garage.tf.samplers import TFWorkerClassWrapper
-
-            worker_class = TFWorkerClassWrapper(worker_class)
         self._worker_class = worker_class
         if worker_args is None:
             self._worker_args = {}

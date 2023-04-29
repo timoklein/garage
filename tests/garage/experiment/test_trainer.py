@@ -27,9 +27,7 @@ class TestTrainer:
         )
         self.value_function = GaussianMLPValueFunction(env_spec=self.env.spec)
         deterministic.set_seed(0)
-        self.sampler = LocalSampler(
-            agents=self.policy, envs=self.env, max_episode_length=self.env.spec.max_episode_length, is_tf_worker=True
-        )
+        self.sampler = LocalSampler(agents=self.policy, envs=self.env, max_episode_length=self.env.spec.max_episode_length)
 
     def teardown_method(self):
         """Teardown method which is called after every test."""
