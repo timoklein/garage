@@ -7,8 +7,7 @@ import torch
 from torch import nn
 
 from garage import InOutSpec
-from garage.torch import (expand_var, NonLinearity, output_height_2d,
-                          output_width_2d)
+from garage.torch import expand_var, NonLinearity, output_height_2d, output_width_2d
 
 
 # pytorch v1.6 issue, see https://github.com/pytorch/pytorch/issues/42305
@@ -67,38 +66,34 @@ class CNNModule(nn.Module):
     """
 
     def __init__(
-            self,
-            spec,
-            image_format,
-            hidden_channels,
-            *,  # Many things after this are ints or tuples of ints.
-            kernel_sizes,
-            strides,
-            paddings=0,
-            padding_mode='zeros',
-            hidden_nonlinearity=nn.ReLU,
-            hidden_w_init=nn.init.xavier_uniform_,
-            hidden_b_init=nn.init.zeros_,
-            max_pool=False,
-            pool_shape=None,
-            pool_stride=1,
-            layer_normalization=False,
-            enable_cudnn_benchmarks=True):
+        self,
+        spec,
+        image_format,
+        hidden_channels,
+        *,  # Many things after this are ints or tuples of ints.
+        kernel_sizes,
+        strides,
+        paddings=0,
+        padding_mode="zeros",
+        hidden_nonlinearity=nn.ReLU,
+        hidden_w_init=nn.init.xavier_uniform_,
+        hidden_b_init=nn.init.zeros_,
+        max_pool=False,
+        pool_shape=None,
+        pool_stride=1,
+        layer_normalization=False,
+        enable_cudnn_benchmarks=True,
+    ):
         super().__init__()
         assert len(hidden_channels) > 0
         # PyTorch forces us to use NCHW internally.
         in_channels, height, width = _check_spec(spec, image_format)
         self._format = image_format
-        kernel_sizes = expand_var('kernel_sizes', kernel_sizes,
-                                  len(hidden_channels), 'hidden_channels')
-        strides = expand_var('strides', strides, len(hidden_channels),
-                             'hidden_channels')
-        paddings = expand_var('paddings', paddings, len(hidden_channels),
-                              'hidden_channels')
-        pool_shape = expand_var('pool_shape', pool_shape, len(hidden_channels),
-                                'hidden_channels')
-        pool_stride = expand_var('pool_stride', pool_stride,
-                                 len(hidden_channels), 'hidden_channels')
+        kernel_sizes = expand_var("kernel_sizes", kernel_sizes, len(hidden_channels), "hidden_channels")
+        strides = expand_var("strides", strides, len(hidden_channels), "hidden_channels")
+        paddings = expand_var("paddings", paddings, len(hidden_channels), "hidden_channels")
+        pool_shape = expand_var("pool_shape", pool_shape, len(hidden_channels), "hidden_channels")
+        pool_stride = expand_var("pool_stride", pool_stride, len(hidden_channels), "hidden_channels")
 
         self._cnn_layers = nn.Sequential()
         torch.backends.cudnn.benchmark = enable_cudnn_benchmarks
@@ -106,48 +101,43 @@ class CNNModule(nn.Module):
         # In case there are no hidden channels, handle output case.
         out_channels = in_channels
         for i, out_channels in enumerate(hidden_channels):
-            conv_layer = nn.Conv2d(in_channels=in_channels,
-                                   out_channels=out_channels,
-                                   kernel_size=kernel_sizes[i],
-                                   stride=strides[i],
-                                   padding=paddings[i],
-                                   padding_mode=padding_mode)
+            conv_layer = nn.Conv2d(
+                in_channels=in_channels,
+                out_channels=out_channels,
+                kernel_size=kernel_sizes[i],
+                stride=strides[i],
+                padding=paddings[i],
+                padding_mode=padding_mode,
+            )
             height = output_height_2d(conv_layer, height)
             width = output_width_2d(conv_layer, width)
             hidden_w_init(conv_layer.weight)
             hidden_b_init(conv_layer.bias)
-            self._cnn_layers.add_module(f'conv_{i}', conv_layer)
+            self._cnn_layers.add_module(f"conv_{i}", conv_layer)
 
             if layer_normalization:
-                self._cnn_layers.add_module(
-                    f'layer_norm_{i}',
-                    nn.LayerNorm((out_channels, height, width)))
+                self._cnn_layers.add_module(f"layer_norm_{i}", nn.LayerNorm((out_channels, height, width)))
 
             if hidden_nonlinearity:
-                self._cnn_layers.add_module(f'non_linearity_{i}',
-                                            NonLinearity(hidden_nonlinearity))
+                self._cnn_layers.add_module(f"non_linearity_{i}", NonLinearity(hidden_nonlinearity))
 
             if max_pool:
-                pool = nn.MaxPool2d(kernel_size=pool_shape[i],
-                                    stride=pool_stride[i])
+                pool = nn.MaxPool2d(kernel_size=pool_shape[i], stride=pool_stride[i])
                 height = output_height_2d(pool, height)
                 width = output_width_2d(pool, width)
-                self._cnn_layers.add_module(f'max_pooling_{i}', pool)
+                self._cnn_layers.add_module(f"max_pooling_{i}", pool)
 
             in_channels = out_channels
 
         output_dims = out_channels * height * width
 
         if spec.output_space is None:
-            final_spec = InOutSpec(
-                spec.input_space,
-                akro.Box(low=-np.inf, high=np.inf, shape=(output_dims, )))
+            final_spec = InOutSpec(spec.input_space, akro.Box(low=-np.inf, high=np.inf, shape=(output_dims,)))
             self._final_layer = None
         else:
             final_spec = spec
             # Checked at start of __init__
-            self._final_layer = nn.Linear(output_dims,
-                                          spec.output_space.shape[0])
+            self._final_layer = nn.Linear(output_dims, spec.output_space.shape[0])
 
         self.spec = final_spec
 
@@ -171,12 +161,12 @@ class CNNModule(nn.Module):
         if isinstance(self.spec.input_space, akro.Image):
             x = torch.div(x, 255.0)
         assert len(x.shape) == 4
-        if self._format == 'NHWC':
+        if self._format == "NHWC":
             # Convert to internal NCHW format
             x = x.permute((0, 3, 1, 2))
         for layer in self._cnn_layers:
             x = layer(x)
-        if self._format == 'NHWC':
+        if self._format == "NHWC":
             # Convert back to NHWC (just in case)
             x = x.permute((0, 2, 3, 1))
         # Remove non-batch dimensions
@@ -213,34 +203,28 @@ def _check_spec(spec, image_format):
     output_space = spec.output_space
     # Don't use isinstance, since akro.Space is guaranteed to inherit from
     # gym.Space
-    if getattr(input_space, 'shape', None) is None:
-        raise ValueError(
-            f'input_space to CNNModule is {input_space}, but should be an '
-            f'akro.Box or akro.Image')
+    if getattr(input_space, "shape", None) is None:
+        raise ValueError(f"input_space to CNNModule is {input_space}, but should be an " f"akro.Box or akro.Image")
     elif len(input_space.shape) != 3:
+        raise ValueError(f"Input to CNNModule is {input_space}, but should have three " f"dimensions.")
+    if output_space is not None and not (hasattr(output_space, "shape") and len(output_space.shape) == 1):
         raise ValueError(
-            f'Input to CNNModule is {input_space}, but should have three '
-            f'dimensions.')
-    if (output_space is not None and not (hasattr(output_space, 'shape')
-                                          and len(output_space.shape) == 1)):
-        raise ValueError(
-            f'output_space to CNNModule is {output_space}, but should be '
-            f'an akro.Box with a single dimension or None')
-    if image_format == 'NCHW':
+            f"output_space to CNNModule is {output_space}, but should be " f"an akro.Box with a single dimension or None"
+        )
+    if image_format == "NCHW":
         in_channels = spec.input_space.shape[0]
         height = spec.input_space.shape[1]
         width = spec.input_space.shape[2]
-    elif image_format == 'NHWC':
+    elif image_format == "NHWC":
         height = spec.input_space.shape[0]
         width = spec.input_space.shape[1]
         in_channels = spec.input_space.shape[2]
     else:
-        raise ValueError(
-            f'image_format has value {image_format!r}, but must be either '
-            f"'NCHW' or 'NHWC'")
+        raise ValueError(f"image_format has value {image_format!r}, but must be either " f"'NCHW' or 'NHWC'")
     if in_channels not in (1, 3):
         warnings.warn(
-            f'CNNModule input has {in_channels} channels, but '
-            f'1 or 3 channels are typical. Consider changing the CNN '
-            f'image_format.')
+            f"CNNModule input has {in_channels} channels, but "
+            f"1 or 3 channels are typical. Consider changing the CNN "
+            f"image_format."
+        )
     return in_channels, height, width

@@ -29,15 +29,15 @@ def cli():
 @click.command()
 def list():  # pylint: disable=redefined-builtin
     """List all benchmarks."""
-    _echo_run_names('Algorithms', _get_runs_dict(benchmark_algos))
-    _echo_run_names('Policies', _get_runs_dict(benchmark_policies))
-    _echo_run_names('Baselines', _get_runs_dict(benchmark_baselines))
-    _echo_run_names('Q Functions', _get_runs_dict(benchmark_q_functions))
-    _echo_run_names('Automatic benchmarking', _get_runs_dict(benchmark_auto))
+    _echo_run_names("Algorithms", _get_runs_dict(benchmark_algos))
+    _echo_run_names("Policies", _get_runs_dict(benchmark_policies))
+    _echo_run_names("Baselines", _get_runs_dict(benchmark_baselines))
+    _echo_run_names("Q Functions", _get_runs_dict(benchmark_q_functions))
+    _echo_run_names("Automatic benchmarking", _get_runs_dict(benchmark_auto))
 
 
 @click.command()
-@click.argument('names', nargs=-1)
+@click.argument("names", nargs=-1)
 def run(names):
     """Run selected benchmarks.
 
@@ -49,18 +49,16 @@ def run(names):
 
     """
     if not names:
-        raise click.BadParameter('Empty names!')
+        raise click.BadParameter("Empty names!")
 
     if len(names) != len(set(names)):
-        raise click.BadParameter('Duplicate names!')
+        raise click.BadParameter("Duplicate names!")
 
     options = _get_all_options()
 
     for name in names:
         if name not in options:
-            raise click.BadParameter(
-                'Invalid run name! Make sure every name can be found in '
-                '`garage_benchmark list`!')
+            raise click.BadParameter("Invalid run name! Make sure every name can be found in " "`garage_benchmark list`!")
 
     for name in names:
         options[name]()
@@ -102,7 +100,7 @@ def _get_runs_dict(module):
     """
     d = {}
     for name, obj in inspect.getmembers(module):
-        if inspect.isfunction(obj) and name.endswith('benchmarks'):
+        if inspect.isfunction(obj) and name.endswith("benchmarks"):
             d[name] = obj
     return d
 
@@ -115,7 +113,7 @@ def _echo_run_names(header, d):
         d (dict): The dict containing benchmark options.
 
     """
-    click.echo('-----' + header + '-----')
+    click.echo("-----" + header + "-----")
     for name in d:
         click.echo(name)
     click.echo()

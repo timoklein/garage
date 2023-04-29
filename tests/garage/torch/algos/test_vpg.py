@@ -40,24 +40,19 @@ class TestVPG:
 
     def setup_method(self):
         """Setup method which is called before every test."""
-        self._env = GymEnv('InvertedDoublePendulum-v2', max_episode_length=100)
+        self._env = GymEnv("InvertedDoublePendulum-v2", max_episode_length=100)
         self._trainer = Trainer(snapshot_config)
 
-        self._policy = GaussianMLPPolicy(env_spec=self._env.spec,
-                                         hidden_sizes=[64, 64],
-                                         hidden_nonlinearity=torch.tanh,
-                                         output_nonlinearity=None)
-        self._sampler = LocalSampler(
-            agents=self._policy,
-            envs=self._env,
-            max_episode_length=self._env.spec.max_episode_length)
+        self._policy = GaussianMLPPolicy(
+            env_spec=self._env.spec, hidden_sizes=[64, 64], hidden_nonlinearity=torch.tanh, output_nonlinearity=None
+        )
+        self._sampler = LocalSampler(agents=self._policy, envs=self._env, max_episode_length=self._env.spec.max_episode_length)
         self._params = {
-            'env_spec': self._env.spec,
-            'policy': self._policy,
-            'value_function':
-            GaussianMLPValueFunction(env_spec=self._env.spec),
-            'sampler': self._sampler,
-            'discount': 0.99,
+            "env_spec": self._env.spec,
+            "policy": self._policy,
+            "value_function": GaussianMLPValueFunction(env_spec=self._env.spec),
+            "sampler": self._sampler,
+            "discount": 0.99,
         }
 
     def teardown_method(self):
@@ -67,8 +62,8 @@ class TestVPG:
     @pytest.mark.mujoco
     def test_vpg_no_entropy(self):
         """Test VPG with no_entropy."""
-        self._params['positive_adv'] = True
-        self._params['use_softplus_entropy'] = True
+        self._params["positive_adv"] = True
+        self._params["use_softplus_entropy"] = True
 
         algo = VPG(**self._params)
         self._trainer.setup(algo, self._env)
@@ -78,9 +73,9 @@ class TestVPG:
     @pytest.mark.mujoco
     def test_vpg_max(self):
         """Test VPG with maximum entropy."""
-        self._params['center_adv'] = False
-        self._params['stop_entropy_gradient'] = True
-        self._params['entropy_method'] = 'max'
+        self._params["center_adv"] = False
+        self._params["stop_entropy_gradient"] = True
+        self._params["entropy_method"] = "max"
 
         algo = VPG(**self._params)
         self._trainer.setup(algo, self._env)
@@ -90,7 +85,7 @@ class TestVPG:
     @pytest.mark.mujoco
     def test_vpg_regularized(self):
         """Test VPG with entropy_regularized."""
-        self._params['entropy_method'] = 'regularized'
+        self._params["entropy_method"] = "regularized"
 
         algo = VPG(**self._params)
         self._trainer.setup(algo, self._env)
@@ -98,7 +93,7 @@ class TestVPG:
         assert last_avg_ret > 0
 
     @pytest.mark.mujoco
-    @pytest.mark.parametrize('algo_param, error, msg', INVALID_ENTROPY_CONFIG)
+    @pytest.mark.parametrize("algo_param, error, msg", INVALID_ENTROPY_CONFIG)
     def test_invalid_entropy_config(self, algo_param, error, msg):
         """Test VPG with invalid entropy config."""
         self._params.update(algo_param)

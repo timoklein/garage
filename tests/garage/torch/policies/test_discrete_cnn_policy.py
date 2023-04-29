@@ -10,30 +10,32 @@ from tests.fixtures.envs.dummy import DummyDiscretePixelEnv
 
 
 class TestDiscreteCNNPolicy:
-
     @pytest.mark.parametrize(
-        'kernel_sizes, hidden_channels, strides, paddings', [
-            ((1, ), (32, ), (1, ), (0, )),
-            ((3, ), (32, ), (1, ), (0, )),
-            ((3, ), (32, ), (2, ), (0, )),
-            ((5, ), (12, ), (1, ), (2, )),
+        "kernel_sizes, hidden_channels, strides, paddings",
+        [
+            ((1,), (32,), (1,), (0,)),
+            ((3,), (32,), (1,), (0,)),
+            ((3,), (32,), (2,), (0,)),
+            ((5,), (12,), (1,), (2,)),
             ((1, 1), (32, 64), (1, 1), (0, 0)),
             ((3, 3), (32, 64), (1, 1), (0, 0)),
             ((3, 3), (32, 64), (2, 2), (0, 0)),
-        ])
-    def test_get_action(self, kernel_sizes, hidden_channels, strides,
-                        paddings):
+        ],
+    )
+    def test_get_action(self, kernel_sizes, hidden_channels, strides, paddings):
         """Test get_action function."""
         env = GymEnv(DummyDiscretePixelEnv())
-        policy = DiscreteCNNPolicy(env_spec=env.spec,
-                                   image_format='NHWC',
-                                   hidden_channels=hidden_channels,
-                                   kernel_sizes=kernel_sizes,
-                                   strides=strides,
-                                   paddings=paddings,
-                                   padding_mode='zeros',
-                                   hidden_w_init=nn.init.ones_,
-                                   output_w_init=nn.init.ones_)
+        policy = DiscreteCNNPolicy(
+            env_spec=env.spec,
+            image_format="NHWC",
+            hidden_channels=hidden_channels,
+            kernel_sizes=kernel_sizes,
+            strides=strides,
+            paddings=paddings,
+            padding_mode="zeros",
+            hidden_w_init=nn.init.ones_,
+            output_w_init=nn.init.ones_,
+        )
         env.reset()
         obs = env.step(1).observation
 
@@ -41,28 +43,31 @@ class TestDiscreteCNNPolicy:
         assert env.action_space.contains(int(action[0]))
 
     @pytest.mark.parametrize(
-        'kernel_sizes, hidden_channels, strides, paddings', [
-            ((1, ), (32, ), (1, ), (0, )),
-            ((3, ), (32, ), (1, ), (0, )),
-            ((3, ), (32, ), (2, ), (0, )),
-            ((5, ), (12, ), (1, ), (2, )),
+        "kernel_sizes, hidden_channels, strides, paddings",
+        [
+            ((1,), (32,), (1,), (0,)),
+            ((3,), (32,), (1,), (0,)),
+            ((3,), (32,), (2,), (0,)),
+            ((5,), (12,), (1,), (2,)),
             ((1, 1), (32, 64), (1, 1), (0, 0)),
             ((3, 3), (32, 64), (1, 1), (0, 0)),
             ((3, 3), (32, 64), (2, 2), (0, 0)),
-        ])
-    def test_get_actions(self, kernel_sizes, hidden_channels, strides,
-                         paddings):
+        ],
+    )
+    def test_get_actions(self, kernel_sizes, hidden_channels, strides, paddings):
         """Test get_actions function."""
         env = GymEnv(DummyDiscretePixelEnv())
-        policy = DiscreteCNNPolicy(env_spec=env.spec,
-                                   image_format='NHWC',
-                                   hidden_channels=hidden_channels,
-                                   kernel_sizes=kernel_sizes,
-                                   strides=strides,
-                                   paddings=paddings,
-                                   padding_mode='zeros',
-                                   hidden_w_init=nn.init.ones_,
-                                   output_w_init=nn.init.ones_)
+        policy = DiscreteCNNPolicy(
+            env_spec=env.spec,
+            image_format="NHWC",
+            hidden_channels=hidden_channels,
+            kernel_sizes=kernel_sizes,
+            strides=strides,
+            paddings=paddings,
+            padding_mode="zeros",
+            hidden_w_init=nn.init.ones_,
+            output_w_init=nn.init.ones_,
+        )
 
         env.reset()
         obs = env.step(1).observation
@@ -72,28 +77,31 @@ class TestDiscreteCNNPolicy:
             assert env.action_space.contains(int(action[0]))
 
     @pytest.mark.parametrize(
-        'kernel_sizes, hidden_channels, strides, paddings', [
-            ((1, ), (32, ), (1, ), (0, )),
-            ((3, ), (32, ), (1, ), (0, )),
-            ((3, ), (32, ), (2, ), (0, )),
-            ((5, ), (12, ), (1, ), (2, )),
+        "kernel_sizes, hidden_channels, strides, paddings",
+        [
+            ((1,), (32,), (1,), (0,)),
+            ((3,), (32,), (1,), (0,)),
+            ((3,), (32,), (2,), (0,)),
+            ((5,), (12,), (1,), (2,)),
             ((1, 1), (32, 64), (1, 1), (0, 0)),
             ((3, 3), (32, 64), (1, 1), (0, 0)),
             ((3, 3), (32, 64), (2, 2), (0, 0)),
-        ])
-    def test_is_pickleable(self, kernel_sizes, hidden_channels, strides,
-                           paddings):
+        ],
+    )
+    def test_is_pickleable(self, kernel_sizes, hidden_channels, strides, paddings):
         """Test if policy is pickable."""
         env = GymEnv(DummyDiscretePixelEnv())
-        policy = DiscreteCNNPolicy(env_spec=env.spec,
-                                   image_format='NHWC',
-                                   hidden_channels=hidden_channels,
-                                   kernel_sizes=kernel_sizes,
-                                   strides=strides,
-                                   paddings=paddings,
-                                   padding_mode='zeros',
-                                   hidden_w_init=nn.init.ones_,
-                                   output_w_init=nn.init.ones_)
+        policy = DiscreteCNNPolicy(
+            env_spec=env.spec,
+            image_format="NHWC",
+            hidden_channels=hidden_channels,
+            kernel_sizes=kernel_sizes,
+            strides=strides,
+            paddings=paddings,
+            padding_mode="zeros",
+            hidden_w_init=nn.init.ones_,
+            output_w_init=nn.init.ones_,
+        )
         env.reset()
         obs = env.step(1).observation
 
@@ -108,31 +116,34 @@ class TestDiscreteCNNPolicy:
         assert output_action_1.shape == output_action_2.shape
 
     @pytest.mark.parametrize(
-        'kernel_sizes, hidden_channels, strides, paddings', [
-            ((1, ), (32, ), (1, ), (0, )),
-            ((3, ), (32, ), (1, ), (0, )),
-            ((3, ), (32, ), (2, ), (0, )),
-            ((5, ), (12, ), (1, ), (2, )),
+        "kernel_sizes, hidden_channels, strides, paddings",
+        [
+            ((1,), (32,), (1,), (0,)),
+            ((3,), (32,), (1,), (0,)),
+            ((3,), (32,), (2,), (0,)),
+            ((5,), (12,), (1,), (2,)),
             ((1, 1), (32, 64), (1, 1), (0, 0)),
             ((3, 3), (32, 64), (1, 1), (0, 0)),
             ((3, 3), (32, 64), (2, 2), (0, 0)),
-        ])
-    def test_obs_unflattened(self, kernel_sizes, hidden_channels, strides,
-                             paddings):
+        ],
+    )
+    def test_obs_unflattened(self, kernel_sizes, hidden_channels, strides, paddings):
         """Test if a flattened image obs is passed to get_action
-           then it is unflattened.
+        then it is unflattened.
         """
         env = GymEnv(DummyDiscretePixelEnv())
         env.reset()
-        policy = DiscreteCNNPolicy(env_spec=env.spec,
-                                   image_format='NHWC',
-                                   hidden_channels=hidden_channels,
-                                   kernel_sizes=kernel_sizes,
-                                   strides=strides,
-                                   paddings=paddings,
-                                   padding_mode='zeros',
-                                   hidden_w_init=nn.init.ones_,
-                                   output_w_init=nn.init.ones_)
+        policy = DiscreteCNNPolicy(
+            env_spec=env.spec,
+            image_format="NHWC",
+            hidden_channels=hidden_channels,
+            kernel_sizes=kernel_sizes,
+            strides=strides,
+            paddings=paddings,
+            padding_mode="zeros",
+            hidden_w_init=nn.init.ones_,
+            output_w_init=nn.init.ones_,
+        )
 
         obs = env.observation_space.sample()
         action, _ = policy.get_action(env.observation_space.flatten(obs))

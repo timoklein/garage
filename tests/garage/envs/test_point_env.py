@@ -7,7 +7,6 @@ from garage.envs.point_env import PointEnv
 
 
 class TestPointEnv:
-
     def test_pickleable(self):
         env = PointEnv()
         round_trip = pickle.loads(pickle.dumps(env))
@@ -54,7 +53,7 @@ class TestPointEnv:
 
         for task in tasks:
             env.set_task(task)
-            assert (env._goal == task['goal']).all()
+            assert (env._goal == task["goal"]).all()
 
     def test_done(self):
         env = PointEnv()
@@ -64,18 +63,18 @@ class TestPointEnv:
             if done:
                 break
         else:
-            assert False, 'Should report done'
+            assert False, "Should report done"
 
     def test_visualization(self):
         env = PointEnv()
-        assert env.render_modes == ['ascii']
+        assert env.render_modes == ["ascii"]
         env.reset()
-        assert env.render('ascii') == f'Point: {env._point}, Goal: {env._goal}'
+        assert env.render("ascii") == f"Point: {env._point}, Goal: {env._goal}"
 
         env.visualize()
         env.step(env.action_space.sample())
 
     def test_catch_no_reset(self):
         env = PointEnv()
-        with pytest.raises(RuntimeError, match='reset()'):
+        with pytest.raises(RuntimeError, match="reset()"):
             env.step(env.action_space.sample())

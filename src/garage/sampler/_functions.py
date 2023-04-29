@@ -35,6 +35,6 @@ def _apply_env_update(old_env, env_update):
                 old_env.close()
             return env_update, True
         else:
-            raise TypeError('Unknown environment update type.')
+            raise TypeError("Unknown environment update type.")
     else:
         return old_env, False

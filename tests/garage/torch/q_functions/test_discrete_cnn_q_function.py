@@ -22,18 +22,20 @@ from tests.fixtures.envs.dummy import DummyBoxEnv
 def test_forward(batch_size, hidden_channels, kernel_sizes, strides):
     env_spec = GymEnv(DummyBoxEnv(obs_dim=(3, 10, 10))).spec
     obs_dim = env_spec.observation_space.shape
-    obs = torch.zeros((batch_size, ) + obs_dim, dtype=torch.float32)
+    obs = torch.zeros((batch_size,) + obs_dim, dtype=torch.float32)
 
-    qf = DiscreteCNNQFunction(env_spec=env_spec,
-                              image_format='NCHW',
-                              kernel_sizes=kernel_sizes,
-                              strides=strides,
-                              mlp_hidden_nonlinearity=None,
-                              cnn_hidden_nonlinearity=None,
-                              hidden_channels=hidden_channels,
-                              hidden_sizes=hidden_channels,
-                              hidden_w_init=nn.init.ones_,
-                              output_w_init=nn.init.ones_)
+    qf = DiscreteCNNQFunction(
+        env_spec=env_spec,
+        image_format="NCHW",
+        kernel_sizes=kernel_sizes,
+        strides=strides,
+        mlp_hidden_nonlinearity=None,
+        cnn_hidden_nonlinearity=None,
+        hidden_channels=hidden_channels,
+        hidden_sizes=hidden_channels,
+        hidden_w_init=nn.init.ones_,
+        output_w_init=nn.init.ones_,
+    )
 
     output = qf(obs)
     expected_output = torch.zeros(output.shape)
@@ -51,18 +53,20 @@ def test_forward(batch_size, hidden_channels, kernel_sizes, strides):
 def test_is_pickleable(batch_size, hidden_channels, kernel_sizes, strides):
     env_spec = GymEnv(DummyBoxEnv(obs_dim=(3, 10, 10))).spec
     obs_dim = env_spec.observation_space.shape
-    obs = torch.ones((batch_size, ) + obs_dim, dtype=torch.float32)
+    obs = torch.ones((batch_size,) + obs_dim, dtype=torch.float32)
 
-    qf = DiscreteCNNQFunction(env_spec=env_spec,
-                              image_format='NCHW',
-                              kernel_sizes=kernel_sizes,
-                              strides=strides,
-                              mlp_hidden_nonlinearity=None,
-                              cnn_hidden_nonlinearity=None,
-                              hidden_channels=hidden_channels,
-                              hidden_sizes=hidden_channels,
-                              hidden_w_init=nn.init.ones_,
-                              output_w_init=nn.init.ones_)
+    qf = DiscreteCNNQFunction(
+        env_spec=env_spec,
+        image_format="NCHW",
+        kernel_sizes=kernel_sizes,
+        strides=strides,
+        mlp_hidden_nonlinearity=None,
+        cnn_hidden_nonlinearity=None,
+        hidden_channels=hidden_channels,
+        hidden_sizes=hidden_channels,
+        hidden_w_init=nn.init.ones_,
+        output_w_init=nn.init.ones_,
+    )
 
     output1 = qf(obs)
     p = pickle.dumps(qf)

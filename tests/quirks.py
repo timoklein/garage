@@ -14,9 +14,9 @@
 # ```
 KNOWN_GYM_RENDER_NOT_IMPLEMENTED = [
     # Please keep alphabetized
-    'Blackjack-v0',
-    'GuessingGame-v0',
-    'HotterColder-v0',
-    'NChain-v0',
-    'Roulette-v0',
+    "Blackjack-v0",
+    "GuessingGame-v0",
+    "HotterColder-v0",
+    "NChain-v0",
+    "Roulette-v0",
 ]

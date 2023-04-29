@@ -14,9 +14,9 @@ class DummyMultiTaskBoxEnv(DummyBoxEnv):
 
     """
 
-    def __init__(self, random=True, obs_dim=(4, ), action_dim=(2, )):
+    def __init__(self, random=True, obs_dim=(4,), action_dim=(2,)):
         super().__init__(random, obs_dim, action_dim)
-        self.task = 'dummy1'
+        self.task = "dummy1"
 
     def sample_tasks(self, n):
         """Sample a list of `num_tasks` tasks.
@@ -33,7 +33,7 @@ class DummyMultiTaskBoxEnv(DummyBoxEnv):
     @property
     def all_task_names(self):
         """list[str]: Return a list of dummy task names."""
-        return ['dummy1', 'dummy2', 'dummy3']
+        return ["dummy1", "dummy2", "dummy3"]
 
     def set_task(self, task):
         """Reset with a task.
@@ -57,5 +57,4 @@ class DummyMultiTaskBoxEnv(DummyBoxEnv):
             dict: Environment information.
 
         """
-        return (self.observation_space.sample(), 0, False,
-                dict(dummy='dummy', task_name=self.task))
+        return (self.observation_space.sample(), 0, False, dict(dummy="dummy", task_name=self.task))

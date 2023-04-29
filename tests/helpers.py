@@ -21,17 +21,13 @@ def step_env(env, n=10, visualize=True):
     if visualize and issubclass(type(env), Environment):
         env.visualize()
     for _ in range(n):
-        print('itr:', _)
+        print("itr:", _)
         es = env.step(env.action_space.sample())
         if es.last:
             break
 
 
-def step_env_with_gym_quirks(env,
-                             spec,
-                             n=10,
-                             visualize=True,
-                             serialize_env=False):
+def step_env_with_gym_quirks(env, spec, n=10, visualize=True, serialize_env=False):
     """Step env helper.
 
     Args:
@@ -63,8 +59,7 @@ def step_env_with_gym_quirks(env,
     env.close()
 
 
-def convolve(_input, filter_weights, filter_bias, strides, filters,
-             in_channels, hidden_nonlinearity):
+def convolve(_input, filter_weights, filter_bias, strides, filters, in_channels, hidden_nonlinearity):
     """Helper function for performing convolution.
 
     Args:
@@ -93,21 +88,21 @@ def convolve(_input, filter_weights, filter_bias, strides, filters,
     in_height = _input.shape[2]
 
     for filter_iter, in_shape, filter_weight, _filter_bias, stride in zip(
-            filters, in_channels, filter_weights, filter_bias, strides):
+        filters, in_channels, filter_weights, filter_bias, strides
+    ):
         filter_width = filter_iter[1][1]
         filter_height = filter_iter[1][0]
         out_width = int((in_width - filter_width) / stride) + 1
         out_height = int((in_height - filter_height) / stride) + 1
         flatten_filter_size = filter_width * filter_height * in_shape
         reshape_filter = filter_weight.reshape(flatten_filter_size, -1)
-        image_vector = np.empty(
-            (batch_size, out_width, out_height, flatten_filter_size))
+        image_vector = np.empty((batch_size, out_width, out_height, flatten_filter_size))
         for batch in range(batch_size):
             for w in range(out_width):
                 for h in range(out_height):
                     image_vector[batch][w][h] = _construct_image_vector(
-                        _input, batch, w, h, filter_width, filter_height,
-                        in_shape)
+                        _input, batch, w, h, filter_width, filter_height, in_shape
+                    )
 
         _input = np.dot(image_vector, reshape_filter) + _filter_bias
         _input = hidden_nonlinearity(_input).eval()
@@ -118,16 +113,9 @@ def convolve(_input, filter_weights, filter_bias, strides, filters,
     return _input
 
 
-def recurrent_step_lstm(input_val,
-                        num_units,
-                        step_hidden,
-                        step_cell,
-                        w_x_init,
-                        w_h_init,
-                        b_init,
-                        nonlinearity,
-                        gate_nonlinearity,
-                        forget_bias=1.0):
+def recurrent_step_lstm(
+    input_val, num_units, step_hidden, step_cell, w_x_init, w_h_init, b_init, nonlinearity, gate_nonlinearity, forget_bias=1.0
+):
     """Helper function for performing feedforward of a lstm cell.
 
     Args:
@@ -194,19 +182,19 @@ def recurrent_step_lstm(input_val,
     # Weights for the input gate
     w_xi = np.full((input_dim, num_units), w_x_init)
     w_hi = np.full((num_units, num_units), w_h_init)
-    b_i = np.full((num_units, ), b_init)
+    b_i = np.full((num_units,), b_init)
     # Weights for the forget gate
     w_xf = np.full((input_dim, num_units), w_x_init)
     w_hf = np.full((num_units, num_units), w_h_init)
-    b_f = np.full((num_units, ), b_init)
+    b_f = np.full((num_units,), b_init)
     # Weights for the cell gate
     w_xc = np.full((input_dim, num_units), w_x_init)
     w_hc = np.full((num_units, num_units), w_h_init)
-    b_c = np.full((num_units, ), b_init)
+    b_c = np.full((num_units,), b_init)
     # Weights for the out gate
     w_xo = np.full((input_dim, num_units), w_x_init)
     w_ho = np.full((num_units, num_units), w_h_init)
-    b_o = np.full((num_units, ), b_init)
+    b_o = np.full((num_units,), b_init)
 
     w_x_ifco = np.concatenate([w_xi, w_xf, w_xc, w_xo], axis=1)
     w_h_ifco = np.concatenate([w_hi, w_hf, w_hc, w_ho], axis=1)
@@ -215,14 +203,14 @@ def recurrent_step_lstm(input_val,
     h_ifco = np.matmul(step_hidden, w_h_ifco)
 
     x_i = x_ifco[:, :num_units]
-    x_f = x_ifco[:, num_units:num_units * 2]
-    x_c = x_ifco[:, num_units * 2:num_units * 3]
-    x_o = x_ifco[:, num_units * 3:num_units * 4]
+    x_f = x_ifco[:, num_units : num_units * 2]
+    x_c = x_ifco[:, num_units * 2 : num_units * 3]
+    x_o = x_ifco[:, num_units * 3 : num_units * 4]
 
     h_i = h_ifco[:, :num_units]
-    h_f = h_ifco[:, num_units:num_units * 2]
-    h_c = h_ifco[:, num_units * 2:num_units * 3]
-    h_o = h_ifco[:, num_units * 3:num_units * 4]
+    h_f = h_ifco[:, num_units : num_units * 2]
+    h_c = h_ifco[:, num_units * 2 : num_units * 3]
+    h_o = h_ifco[:, num_units * 3 : num_units * 4]
 
     i = gate_nonlinearity(x_i + h_i + b_i)
     f = gate_nonlinearity(x_f + h_f + b_f + forget_bias)
@@ -233,15 +221,9 @@ def recurrent_step_lstm(input_val,
     return h, c
 
 
-def recurrent_step_gru(input_val,
-                       num_units,
-                       step_hidden,
-                       w_x_init,
-                       w_h_init,
-                       b_init,
-                       nonlinearity,
-                       gate_nonlinearity,
-                       forget_bias=1.0):
+def recurrent_step_gru(
+    input_val, num_units, step_hidden, w_x_init, w_h_init, b_init, nonlinearity, gate_nonlinearity, forget_bias=1.0
+):
     """Helper function for performing feedforward of a GRU cell.
 
     Args:
@@ -303,15 +285,15 @@ def recurrent_step_gru(input_val,
     # Weights for the update gate
     w_xz = np.full((input_dim, num_units), w_x_init)
     w_hz = np.full((num_units, num_units), w_h_init)
-    b_z = np.full((num_units, ), b_init)
+    b_z = np.full((num_units,), b_init)
     # Weights for the reset gate
     w_xr = np.full((input_dim, num_units), w_x_init)
     w_hr = np.full((num_units, num_units), w_h_init)
-    b_r = np.full((num_units, ), b_init)
+    b_r = np.full((num_units,), b_init)
     # Weights for the hidden gate
     w_xh = np.full((input_dim, num_units), w_x_init)
     w_hh = np.full((num_units, num_units), w_h_init)
-    b_h = np.full((num_units, ), b_init)
+    b_h = np.full((num_units,), b_init)
 
     w_x_zrh = np.concatenate([w_xz, w_xr, w_xh], axis=1)
     w_h_zrh = np.concatenate([w_hz, w_hr, w_hh], axis=1)
@@ -320,12 +302,12 @@ def recurrent_step_gru(input_val,
     h_zrh = np.matmul(step_hidden, w_h_zrh)
 
     x_z = x_zrh[:, :num_units]
-    x_r = x_zrh[:, num_units:num_units * 2]
-    x_h = x_zrh[:, num_units * 2:num_units * 3]
+    x_r = x_zrh[:, num_units : num_units * 2]
+    x_h = x_zrh[:, num_units * 2 : num_units * 3]
 
     h_z = h_zrh[:, :num_units]
-    h_r = h_zrh[:, num_units:num_units * 2]
-    h_h = h_zrh[:, num_units * 2:num_units * 3]
+    h_r = h_zrh[:, num_units : num_units * 2]
+    h_h = h_zrh[:, num_units * 2 : num_units * 3]
 
     z = gate_nonlinearity(x_z + h_z + b_z)
     r = gate_nonlinearity(x_r + h_r + b_r)
@@ -335,8 +317,7 @@ def recurrent_step_gru(input_val,
     return h
 
 
-def _construct_image_vector(_input, batch, w, h, filter_width, filter_height,
-                            in_shape):
+def _construct_image_vector(_input, batch, w, h, filter_width, filter_height, in_shape):
     """Get sliding window of input image.
 
     Args:
@@ -360,7 +341,7 @@ def _construct_image_vector(_input, batch, w, h, filter_width, filter_height,
     return sw.flatten()
 
 
-def max_pooling(_input, pool_shape, pool_stride, padding='VALID'):
+def max_pooling(_input, pool_shape, pool_stride, padding="VALID"):
     """Helper function for performing max pooling.
 
     Args:
@@ -375,7 +356,7 @@ def max_pooling(_input, pool_shape, pool_stride, padding='VALID'):
 
     """
     batch_size = _input.shape[0]
-    if padding == 'VALID':
+    if padding == "VALID":
         height_size = int((_input.shape[1] - pool_shape) / pool_stride) + 1
         width_size = int((_input.shape[2] - pool_shape) / pool_stride) + 1
     else:
@@ -390,9 +371,6 @@ def max_pooling(_input, pool_shape, pool_stride, padding='VALID'):
                 for k in range(_input.shape[3]):
                     row = i * pool_shape
                     col = j * pool_shape
-                    results[b][i][j][k] = np.max(_input[b,
-                                                        row:row + pool_shape,
-                                                        col:col +  # noqa: W504
-                                                        pool_shape, k])
+                    results[b][i][j][k] = np.max(_input[b, row : row + pool_shape, col : col + pool_shape, k])  # noqa: W504
 
     return results

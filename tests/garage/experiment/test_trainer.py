@@ -18,7 +18,7 @@ class TestTrainer:
 
     def setup_method(self):
         """Setup method which is called before every test."""
-        self.env = normalize(GymEnv('InvertedDoublePendulum-v2'))
+        self.env = normalize(GymEnv("InvertedDoublePendulum-v2"))
         self.policy = GaussianMLPPolicy(
             env_spec=self.env.spec,
             hidden_sizes=(64, 64),
@@ -28,10 +28,8 @@ class TestTrainer:
         self.value_function = GaussianMLPValueFunction(env_spec=self.env.spec)
         deterministic.set_seed(0)
         self.sampler = LocalSampler(
-            agents=self.policy,
-            envs=self.env,
-            max_episode_length=self.env.spec.max_episode_length,
-            is_tf_worker=True)
+            agents=self.policy, envs=self.env, max_episode_length=self.env.spec.max_episode_length, is_tf_worker=True
+        )
 
     def teardown_method(self):
         """Teardown method which is called after every test."""
@@ -40,27 +38,26 @@ class TestTrainer:
     @pytest.mark.mujoco
     def test_set_plot(self):
         trainer = Trainer(snapshot_config)
-        algo = PPO(env_spec=self.env.spec,
-                   policy=self.policy,
-                   value_function=self.value_function,
-                   sampler=self.sampler,
-                   discount=0.99,
-                   gae_lambda=0.97,
-                   lr_clip_range=2e-1)
+        algo = PPO(
+            env_spec=self.env.spec,
+            policy=self.policy,
+            value_function=self.value_function,
+            sampler=self.sampler,
+            discount=0.99,
+            gae_lambda=0.97,
+            lr_clip_range=2e-1,
+        )
 
         trainer.setup(algo, self.env)
         trainer.train(n_epochs=1, batch_size=100, plot=True)
 
-        assert isinstance(
-            trainer._plotter,
-            Plotter), ('self.plotter in Trainer should be set to Plotter.')
+        assert isinstance(trainer._plotter, Plotter), "self.plotter in Trainer should be set to Plotter."
 
 
 def test_setup_no_sampler():
     trainer = Trainer(snapshot_config)
 
     class SupervisedAlgo:
-
         def train(self, trainer):
             # pylint: disable=undefined-loop-variable
             for epoch in trainer.step_epochs():

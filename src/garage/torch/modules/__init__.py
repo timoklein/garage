@@ -14,11 +14,11 @@ from garage.torch.modules.discrete_cnn_module import DiscreteCNNModule
 # yapf: enable
 
 __all__ = [
-    'CNNModule',
-    'DiscreteCNNModule',
-    'MLPModule',
-    'MultiHeadedMLPModule',
-    'GaussianMLPModule',
-    'GaussianMLPIndependentStdModule',
-    'GaussianMLPTwoHeadedModule',
+    "CNNModule",
+    "DiscreteCNNModule",
+    "MLPModule",
+    "MultiHeadedMLPModule",
+    "GaussianMLPModule",
+    "GaussianMLPIndependentStdModule",
+    "GaussianMLPTwoHeadedModule",
 ]

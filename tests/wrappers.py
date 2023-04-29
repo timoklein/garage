@@ -6,7 +6,7 @@ import gym
 class AutoStopEnv(gym.Wrapper):
     """Environment wrapper that stops episode at step max_episode_length."""
 
-    def __init__(self, env=None, env_name='', max_episode_length=100):
+    def __init__(self, env=None, env_name="", max_episode_length=100):
         """Create an AutoStepEnv.
 
         Args:

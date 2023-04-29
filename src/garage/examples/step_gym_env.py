@@ -5,14 +5,11 @@ import argparse
 from garage.envs import GymEnv
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--n_steps',
-                    type=int,
-                    default=1000,
-                    help='Number of steps to run')
+parser.add_argument("--n_steps", type=int, default=1000, help="Number of steps to run")
 args = parser.parse_args()
 
 # Construct the environment
-env = GymEnv('MountainCar-v0')
+env = GymEnv("MountainCar-v0")
 
 # Reset the environment and launch the viewer
 env.reset()

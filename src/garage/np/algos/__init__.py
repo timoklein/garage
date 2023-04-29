@@ -6,9 +6,9 @@ from garage.np.algos.nop import NOP
 from garage.np.algos.rl_algorithm import RLAlgorithm
 
 __all__ = [
-    'RLAlgorithm',
-    'CEM',
-    'CMAES',
-    'MetaRLAlgorithm',
-    'NOP',
+    "RLAlgorithm",
+    "CEM",
+    "CMAES",
+    "MetaRLAlgorithm",
+    "NOP",
 ]

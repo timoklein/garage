@@ -66,33 +66,33 @@ class DiscreteCNNPolicy(StochasticPolicy):
 
     """
 
-    def __init__(self,
-                 env_spec,
-                 image_format,
-                 kernel_sizes,
-                 hidden_channels,
-                 strides,
-                 hidden_sizes=(32, 32),
-                 cnn_hidden_nonlinearity=torch.nn.ReLU,
-                 mlp_hidden_nonlinearity=torch.nn.ReLU,
-                 hidden_w_init=nn.init.xavier_uniform_,
-                 hidden_b_init=nn.init.zeros_,
-                 paddings=0,
-                 padding_mode='zeros',
-                 max_pool=False,
-                 pool_shape=None,
-                 pool_stride=1,
-                 output_nonlinearity=None,
-                 output_w_init=nn.init.xavier_uniform_,
-                 output_b_init=nn.init.zeros_,
-                 layer_normalization=False,
-                 name='DiscreteCNNPolicy'):
-
+    def __init__(
+        self,
+        env_spec,
+        image_format,
+        kernel_sizes,
+        hidden_channels,
+        strides,
+        hidden_sizes=(32, 32),
+        cnn_hidden_nonlinearity=torch.nn.ReLU,
+        mlp_hidden_nonlinearity=torch.nn.ReLU,
+        hidden_w_init=nn.init.xavier_uniform_,
+        hidden_b_init=nn.init.zeros_,
+        paddings=0,
+        padding_mode="zeros",
+        max_pool=False,
+        pool_shape=None,
+        pool_stride=1,
+        output_nonlinearity=None,
+        output_w_init=nn.init.xavier_uniform_,
+        output_b_init=nn.init.zeros_,
+        layer_normalization=False,
+        name="DiscreteCNNPolicy",
+    ):
         super().__init__(env_spec, name)
 
         self._cnn_module = DiscreteCNNModule(
-            spec=InOutSpec(input_space=env_spec.observation_space,
-                           output_space=env_spec.action_space),
+            spec=InOutSpec(input_space=env_spec.observation_space, output_space=env_spec.action_space),
             image_format=image_format,
             kernel_sizes=kernel_sizes,
             hidden_channels=hidden_channels,
@@ -110,7 +110,8 @@ class DiscreteCNNPolicy(StochasticPolicy):
             output_nonlinearity=output_nonlinearity,
             output_w_init=output_w_init,
             output_b_init=output_b_init,
-            layer_normalization=layer_normalization)
+            layer_normalization=layer_normalization,
+        )
 
     def forward(self, observations):
         """Compute the action distributions from the observations.
@@ -127,8 +128,7 @@ class DiscreteCNNPolicy(StochasticPolicy):
                 Do not need to be detached, and can be on any device.
         """
         # We're given flattened observations.
-        observations = observations.reshape(
-            -1, *self._env_spec.observation_space.shape)
+        observations = observations.reshape(-1, *self._env_spec.observation_space.shape)
         output = self._cnn_module(observations)
         logits = torch.softmax(output, axis=1)
         dist = torch.distributions.Bernoulli(logits=logits)

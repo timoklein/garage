@@ -6,8 +6,7 @@ import pathlib
 
 import cloudpickle
 
-SnapshotConfig = collections.namedtuple(
-    'SnapshotConfig', ['snapshot_dir', 'snapshot_mode', 'snapshot_gap'])
+SnapshotConfig = collections.namedtuple("SnapshotConfig", ["snapshot_dir", "snapshot_mode", "snapshot_gap"])
 
 
 class Snapshotter:
@@ -30,24 +29,22 @@ class Snapshotter:
 
     """
 
-    def __init__(self,
-                 snapshot_dir=os.path.join(os.getcwd(),
-                                           'data/local/experiment'),
-                 snapshot_mode='last',
-                 snapshot_gap=1):
+    def __init__(self, snapshot_dir=os.path.join(os.getcwd(), "data/local/experiment"), snapshot_mode="last", snapshot_gap=1):
         self._snapshot_dir = snapshot_dir
         self._snapshot_mode = snapshot_mode
         self._snapshot_gap = snapshot_gap
 
-        if snapshot_mode == 'gap_overwrite' and snapshot_gap <= 1:
-            raise ValueError('snapshot_gap must be > 1 when using '
-                             'snapshot_mode="gap_overwrite". Use '
-                             'snapshot_mode="last" to snapshot after '
-                             'every iteration.')
-        if snapshot_mode == 'last' and snapshot_gap != 1:
-            raise ValueError('snapshot_gap should be set to 1 if using '
-                             'snapshot_mode="last". Did you mean to'
-                             ' use snapshot_mode="gap"?')
+        if snapshot_mode == "gap_overwrite" and snapshot_gap <= 1:
+            raise ValueError(
+                "snapshot_gap must be > 1 when using "
+                'snapshot_mode="gap_overwrite". Use '
+                'snapshot_mode="last" to snapshot after '
+                "every iteration."
+            )
+        if snapshot_mode == "last" and snapshot_gap != 1:
+            raise ValueError(
+                "snapshot_gap should be set to 1 if using " 'snapshot_mode="last". Did you mean to' ' use snapshot_mode="gap"?'
+            )
 
         pathlib.Path(snapshot_dir).mkdir(parents=True, exist_ok=True)
 
@@ -96,36 +93,33 @@ class Snapshotter:
         """
         file_name = None
 
-        if self._snapshot_mode == 'all':
-            file_name = os.path.join(self._snapshot_dir, 'itr_%d.pkl' % itr)
-        elif self._snapshot_mode == 'gap_overwrite':
+        if self._snapshot_mode == "all":
+            file_name = os.path.join(self._snapshot_dir, "itr_%d.pkl" % itr)
+        elif self._snapshot_mode == "gap_overwrite":
             if itr % self._snapshot_gap == 0:
-                file_name = os.path.join(self._snapshot_dir, 'params.pkl')
-        elif self._snapshot_mode == 'last':
+                file_name = os.path.join(self._snapshot_dir, "params.pkl")
+        elif self._snapshot_mode == "last":
             # override previous params
-            file_name = os.path.join(self._snapshot_dir, 'params.pkl')
-        elif self._snapshot_mode == 'gap':
+            file_name = os.path.join(self._snapshot_dir, "params.pkl")
+        elif self._snapshot_mode == "gap":
             if itr % self._snapshot_gap == 0:
-                file_name = os.path.join(self._snapshot_dir,
-                                         'itr_%d.pkl' % itr)
-        elif self._snapshot_mode == 'gap_and_last':
+                file_name = os.path.join(self._snapshot_dir, "itr_%d.pkl" % itr)
+        elif self._snapshot_mode == "gap_and_last":
             if itr % self._snapshot_gap == 0:
-                file_name = os.path.join(self._snapshot_dir,
-                                         'itr_%d.pkl' % itr)
-            file_name_last = os.path.join(self._snapshot_dir, 'params.pkl')
-            with open(file_name_last, 'wb') as file:
+                file_name = os.path.join(self._snapshot_dir, "itr_%d.pkl" % itr)
+            file_name_last = os.path.join(self._snapshot_dir, "params.pkl")
+            with open(file_name_last, "wb") as file:
                 cloudpickle.dump(params, file)
-        elif self._snapshot_mode == 'none':
+        elif self._snapshot_mode == "none":
             pass
         else:
-            raise ValueError('Invalid snapshot mode {}'.format(
-                self._snapshot_mode))
+            raise ValueError("Invalid snapshot mode {}".format(self._snapshot_mode))
 
         if file_name:
-            with open(file_name, 'wb') as file:
+            with open(file_name, "wb") as file:
                 cloudpickle.dump(params, file)
 
-    def load(self, load_dir, itr='last'):
+    def load(self, load_dir, itr="last"):
         # pylint: disable=no-self-use
         """Load one snapshot of parameters from disk.
 
@@ -146,27 +140,24 @@ class Snapshotter:
 
         """
         if isinstance(itr, int) or itr.isdigit():
-            load_from_file = os.path.join(load_dir, 'itr_{}.pkl'.format(itr))
+            load_from_file = os.path.join(load_dir, "itr_{}.pkl".format(itr))
         else:
-            if itr not in ('last', 'first'):
-                raise ValueError(
-                    "itr should be an integer or 'last' or 'first'")
+            if itr not in ("last", "first"):
+                raise ValueError("itr should be an integer or 'last' or 'first'")
 
-            load_from_file = os.path.join(load_dir, 'params.pkl')
+            load_from_file = os.path.join(load_dir, "params.pkl")
             if not os.path.isfile(load_from_file):
-                files = [f for f in os.listdir(load_dir) if f.endswith('.pkl')]
+                files = [f for f in os.listdir(load_dir) if f.endswith(".pkl")]
                 if not files:
-                    raise FileNotFoundError(errno.ENOENT,
-                                            os.strerror(errno.ENOENT),
-                                            '*.pkl file in', load_dir)
+                    raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), "*.pkl file in", load_dir)
                 files.sort(key=_extract_snapshot_itr)
-                load_from_file = files[0] if itr == 'first' else files[-1]
+                load_from_file = files[0] if itr == "first" else files[-1]
                 load_from_file = os.path.join(load_dir, load_from_file)
 
         if not os.path.isfile(load_from_file):
-            raise NotAFileError('File not existing: ', load_from_file)
+            raise NotAFileError("File not existing: ", load_from_file)
 
-        with open(load_from_file, 'rb') as file:
+        with open(load_from_file, "rb") as file:
             return cloudpickle.load(file)
 
 
@@ -181,7 +172,7 @@ def _extract_snapshot_itr(filename: str) -> int:
 
     """
     base = os.path.splitext(filename)[0]
-    digits = base.split('itr_')[1]
+    digits = base.split("itr_")[1]
     return int(digits)
 
 

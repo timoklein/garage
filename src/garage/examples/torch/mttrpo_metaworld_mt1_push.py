@@ -18,10 +18,10 @@ from garage.trainer import Trainer
 
 
 @click.command()
-@click.option('--seed', default=1)
-@click.option('--epochs', default=500)
-@click.option('--batch_size', default=1024)
-@wrap_experiment(snapshot_mode='all')
+@click.option("--seed", default=1)
+@click.option("--epochs", default=500)
+@click.option("--batch_size", default=1024)
+@wrap_experiment(snapshot_mode="all")
 def mttrpo_metaworld_mt1_push(ctxt, seed, epochs, batch_size):
     """Set up environment and algorithm and run the task.
 
@@ -36,13 +36,10 @@ def mttrpo_metaworld_mt1_push(ctxt, seed, epochs, batch_size):
     """
     set_seed(seed)
     n_tasks = 50
-    mt1 = metaworld.MT1('push-v1')
-    train_task_sampler = MetaWorldTaskSampler(mt1, 'train',
-                                              lambda env, _: normalize(env))
+    mt1 = metaworld.MT1("push-v1")
+    train_task_sampler = MetaWorldTaskSampler(mt1, "train", lambda env, _: normalize(env))
     envs = [env_up() for env_up in train_task_sampler.sample(n_tasks)]
-    env = MultiEnvWrapper(envs,
-                          sample_strategy=round_robin_strategy,
-                          mode='vanilla')
+    env = MultiEnvWrapper(envs, sample_strategy=round_robin_strategy, mode="vanilla")
 
     policy = GaussianMLPPolicy(
         env_spec=env.spec,
@@ -51,21 +48,15 @@ def mttrpo_metaworld_mt1_push(ctxt, seed, epochs, batch_size):
         output_nonlinearity=None,
     )
 
-    value_function = GaussianMLPValueFunction(env_spec=env.spec,
-                                              hidden_sizes=(32, 32),
-                                              hidden_nonlinearity=torch.tanh,
-                                              output_nonlinearity=None)
+    value_function = GaussianMLPValueFunction(
+        env_spec=env.spec, hidden_sizes=(32, 32), hidden_nonlinearity=torch.tanh, output_nonlinearity=None
+    )
 
-    sampler = RaySampler(agents=policy,
-                         envs=env,
-                         max_episode_length=env.spec.max_episode_length)
+    sampler = RaySampler(agents=policy, envs=env, max_episode_length=env.spec.max_episode_length)
 
-    algo = TRPO(env_spec=env.spec,
-                policy=policy,
-                value_function=value_function,
-                sampler=sampler,
-                discount=0.99,
-                gae_lambda=0.95)
+    algo = TRPO(
+        env_spec=env.spec, policy=policy, value_function=value_function, sampler=sampler, discount=0.99, gae_lambda=0.95
+    )
 
     trainer = Trainer(ctxt)
     trainer.setup(algo, env)

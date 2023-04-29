@@ -19,11 +19,7 @@ class OptimizerWrapper:
 
     """
 
-    def __init__(self,
-                 optimizer,
-                 module,
-                 max_optimization_epochs=1,
-                 minibatch_size=None):
+    def __init__(self, optimizer, module, max_optimization_epochs=1, minibatch_size=None):
         self._optimizer = make_optimizer(optimizer, module=module)
         self._max_optimization_epochs = max_optimization_epochs
         self._minibatch_size = minibatch_size

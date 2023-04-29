@@ -15,7 +15,7 @@ class DummyBoxEnv(DummyEnv):
 
     """
 
-    def __init__(self, random=True, obs_dim=(4, ), action_dim=(2, )):
+    def __init__(self, random=True, obs_dim=(4,), action_dim=(2,)):
         super().__init__(random, obs_dim, action_dim)
 
     @property
@@ -36,10 +36,7 @@ class DummyBoxEnv(DummyEnv):
             gym.spaces: The action space of the environment.
 
         """
-        return akro.Box(low=-5.0,
-                        high=5.0,
-                        shape=self._action_dim,
-                        dtype=np.float32)
+        return akro.Box(low=-5.0, high=5.0, shape=self._action_dim, dtype=np.float32)
 
     def reset(self):
         """Reset the environment.
@@ -63,4 +60,4 @@ class DummyBoxEnv(DummyEnv):
             dict: Environment information.
 
         """
-        return self.observation_space.sample(), 0, False, dict(dummy='dummy')
+        return self.observation_space.sample(), 0, False, dict(dummy="dummy")

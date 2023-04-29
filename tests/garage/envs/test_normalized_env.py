@@ -9,10 +9,9 @@ from tests.helpers import step_env
 
 
 class TestNormalizedEnv:
-
     def test_pickleable(self):
-        inner_env = PointEnv(goal=(1., 2.))
-        env = NormalizedEnv(inner_env, scale_reward=10.)
+        inner_env = PointEnv(goal=(1.0, 2.0))
+        env = NormalizedEnv(inner_env, scale_reward=10.0)
         round_trip = pickle.loads(pickle.dumps(env))
         assert round_trip
         assert round_trip._scale_reward == env._scale_reward
@@ -22,9 +21,9 @@ class TestNormalizedEnv:
         round_trip.close()
 
     def test_does_not_modify_action(self):
-        inner_env = PointEnv(goal=(1., 2.))
-        env = NormalizedEnv(inner_env, scale_reward=10.)
-        a = env.action_space.high + 1.
+        inner_env = PointEnv(goal=(1.0, 2.0))
+        env = NormalizedEnv(inner_env, scale_reward=10.0)
+        a = env.action_space.high + 1.0
         a_copy = a
         env.reset()
         env.step(a)
@@ -32,7 +31,7 @@ class TestNormalizedEnv:
         env.close()
 
     def test_visualization(self):
-        inner_env = PointEnv(goal=(1., 2.))
+        inner_env = PointEnv(goal=(1.0, 2.0))
         env = NormalizedEnv(inner_env)
 
         env.visualize()
@@ -42,7 +41,7 @@ class TestNormalizedEnv:
         assert inner_env.render(mode) == env.render(mode)
 
     def test_no_flatten_obs(self):
-        inner_env = PointEnv(goal=(1., 2.))
+        inner_env = PointEnv(goal=(1.0, 2.0))
         env = NormalizedEnv(inner_env, flatten_obs=False)
         obs = env.reset()[0]
 

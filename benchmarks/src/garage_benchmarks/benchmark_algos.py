@@ -37,9 +37,7 @@ def ppo_benchmarks():
 @benchmark
 def td3_benchmarks():
     """Run experiments for TD3 benchmarking."""
-    td3_env_ids = [
-        env_id for env_id in MuJoCo1M_ENV_SET if env_id != 'Reacher-v2'
-    ]
+    td3_env_ids = [env_id for env_id in MuJoCo1M_ENV_SET if env_id != "Reacher-v2"]
     iterate_experiments(td3_garage_pytorch, td3_env_ids)
     iterate_experiments(td3_garage_tf, td3_env_ids)
 

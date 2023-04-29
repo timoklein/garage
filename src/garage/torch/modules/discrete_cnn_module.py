@@ -69,64 +69,68 @@ class DiscreteCNNModule(nn.Module):
         layer_normalization (bool): Bool for using layer normalization or not.
     """
 
-    def __init__(self,
-                 spec,
-                 image_format,
-                 *,
-                 kernel_sizes,
-                 hidden_channels,
-                 strides,
-                 hidden_sizes=(32, 32),
-                 cnn_hidden_nonlinearity=nn.ReLU,
-                 mlp_hidden_nonlinearity=nn.ReLU,
-                 hidden_w_init=nn.init.xavier_uniform_,
-                 hidden_b_init=nn.init.zeros_,
-                 paddings=0,
-                 padding_mode='zeros',
-                 max_pool=False,
-                 pool_shape=None,
-                 pool_stride=1,
-                 output_nonlinearity=None,
-                 output_w_init=nn.init.xavier_uniform_,
-                 output_b_init=nn.init.zeros_,
-                 layer_normalization=False):
-
+    def __init__(
+        self,
+        spec,
+        image_format,
+        *,
+        kernel_sizes,
+        hidden_channels,
+        strides,
+        hidden_sizes=(32, 32),
+        cnn_hidden_nonlinearity=nn.ReLU,
+        mlp_hidden_nonlinearity=nn.ReLU,
+        hidden_w_init=nn.init.xavier_uniform_,
+        hidden_b_init=nn.init.zeros_,
+        paddings=0,
+        padding_mode="zeros",
+        max_pool=False,
+        pool_shape=None,
+        pool_stride=1,
+        output_nonlinearity=None,
+        output_w_init=nn.init.xavier_uniform_,
+        output_b_init=nn.init.zeros_,
+        layer_normalization=False
+    ):
         super().__init__()
 
         cnn_spec = InOutSpec(input_space=spec.input_space, output_space=None)
-        cnn_module = CNNModule(spec=cnn_spec,
-                               image_format=image_format,
-                               kernel_sizes=kernel_sizes,
-                               strides=strides,
-                               hidden_w_init=hidden_w_init,
-                               hidden_b_init=hidden_b_init,
-                               hidden_channels=hidden_channels,
-                               hidden_nonlinearity=cnn_hidden_nonlinearity,
-                               paddings=paddings,
-                               padding_mode=padding_mode,
-                               max_pool=max_pool,
-                               layer_normalization=layer_normalization,
-                               pool_shape=pool_shape,
-                               pool_stride=pool_stride)
+        cnn_module = CNNModule(
+            spec=cnn_spec,
+            image_format=image_format,
+            kernel_sizes=kernel_sizes,
+            strides=strides,
+            hidden_w_init=hidden_w_init,
+            hidden_b_init=hidden_b_init,
+            hidden_channels=hidden_channels,
+            hidden_nonlinearity=cnn_hidden_nonlinearity,
+            paddings=paddings,
+            padding_mode=padding_mode,
+            max_pool=max_pool,
+            layer_normalization=layer_normalization,
+            pool_shape=pool_shape,
+            pool_stride=pool_stride,
+        )
         flat_dim = cnn_module.spec.output_space.flat_dim
 
         output_dim = spec.output_space.flat_dim
-        mlp_module = MLPModule(flat_dim,
-                               output_dim,
-                               hidden_sizes,
-                               hidden_nonlinearity=mlp_hidden_nonlinearity,
-                               hidden_w_init=hidden_w_init,
-                               hidden_b_init=hidden_b_init,
-                               output_nonlinearity=output_nonlinearity,
-                               output_w_init=output_w_init,
-                               output_b_init=output_b_init,
-                               layer_normalization=layer_normalization)
+        mlp_module = MLPModule(
+            flat_dim,
+            output_dim,
+            hidden_sizes,
+            hidden_nonlinearity=mlp_hidden_nonlinearity,
+            hidden_w_init=hidden_w_init,
+            hidden_b_init=hidden_b_init,
+            output_nonlinearity=output_nonlinearity,
+            output_w_init=output_w_init,
+            output_b_init=output_b_init,
+            layer_normalization=layer_normalization,
+        )
 
         if mlp_hidden_nonlinearity is None:
             self._module = nn.Sequential(cnn_module, nn.Flatten(), mlp_module)
         else:
-            self._module = nn.Sequential(cnn_module, mlp_hidden_nonlinearity(),
-                                         nn.Flatten(), mlp_module)
+            self._module = nn.Sequential(cnn_module, mlp_hidden_nonlinearity(), nn.Flatten(), mlp_module)
 
     # pylint: disable=arguments-differ
     def forward(self, inputs):

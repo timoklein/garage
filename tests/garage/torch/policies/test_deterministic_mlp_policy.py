@@ -28,21 +28,19 @@ class TestDeterministicMLPPolicies:
         obs_unflat = torch.ones(unflat_dim, dtype=torch.float32)
         obs_np = np.ones(obs_dim, dtype=np.float32)
         obs_np_unflat = np.ones(unflat_dim, dtype=np.float32)
-        policy = DeterministicMLPPolicy(env_spec=env_spec,
-                                        hidden_nonlinearity=None,
-                                        hidden_sizes=hidden_sizes,
-                                        hidden_w_init=nn.init.ones_,
-                                        output_w_init=nn.init.ones_)
+        policy = DeterministicMLPPolicy(
+            env_spec=env_spec,
+            hidden_nonlinearity=None,
+            hidden_sizes=hidden_sizes,
+            hidden_w_init=nn.init.ones_,
+            output_w_init=nn.init.ones_,
+        )
 
-        expected_output = np.full(act_dim,
-                                  fill_value=obs_dim * np.prod(hidden_sizes),
-                                  dtype=np.float32)
+        expected_output = np.full(act_dim, fill_value=obs_dim * np.prod(hidden_sizes), dtype=np.float32)
         assert np.array_equal(policy.get_action(obs)[0], expected_output)
-        assert np.array_equal(
-            policy.get_action(obs_unflat)[0], expected_output)
+        assert np.array_equal(policy.get_action(obs_unflat)[0], expected_output)
         assert np.array_equal(policy.get_action(obs_np)[0], expected_output)
-        assert np.array_equal(
-            policy.get_action(obs_np_unflat)[0], expected_output)
+        assert np.array_equal(policy.get_action(obs_np_unflat)[0], expected_output)
 
     # yapf: disable
     @pytest.mark.parametrize('batch_size, hidden_sizes', [
@@ -63,26 +61,20 @@ class TestDeterministicMLPPolicies:
         obs_np_unflat = np.ones(unflat_dim, dtype=np.float32)
         obs_torch = torch.Tensor(obs_np)
         obs_torch_unflat = torch.Tensor(obs_np_unflat)
-        policy = DeterministicMLPPolicy(env_spec=env_spec,
-                                        hidden_nonlinearity=None,
-                                        hidden_sizes=hidden_sizes,
-                                        hidden_w_init=nn.init.ones_,
-                                        output_w_init=nn.init.ones_)
+        policy = DeterministicMLPPolicy(
+            env_spec=env_spec,
+            hidden_nonlinearity=None,
+            hidden_sizes=hidden_sizes,
+            hidden_w_init=nn.init.ones_,
+            output_w_init=nn.init.ones_,
+        )
 
-        expected_output = np.full([batch_size, act_dim],
-                                  fill_value=obs_dim * np.prod(hidden_sizes),
-                                  dtype=np.float32)
+        expected_output = np.full([batch_size, act_dim], fill_value=obs_dim * np.prod(hidden_sizes), dtype=np.float32)
         assert np.array_equal(policy.get_actions(obs)[0], expected_output)
-        assert np.array_equal(
-            policy.get_actions([obs_torch] * batch_size)[0], expected_output)
-        assert np.array_equal(
-            policy.get_actions([obs_torch_unflat] * batch_size)[0],
-            expected_output)
-        assert np.array_equal(
-            policy.get_actions([obs_np] * batch_size)[0], expected_output)
-        assert np.array_equal(
-            policy.get_actions([obs_np_unflat] * batch_size)[0],
-            expected_output)
+        assert np.array_equal(policy.get_actions([obs_torch] * batch_size)[0], expected_output)
+        assert np.array_equal(policy.get_actions([obs_torch_unflat] * batch_size)[0], expected_output)
+        assert np.array_equal(policy.get_actions([obs_np] * batch_size)[0], expected_output)
+        assert np.array_equal(policy.get_actions([obs_np_unflat] * batch_size)[0], expected_output)
 
     # yapf: disable
     @pytest.mark.parametrize('batch_size, hidden_sizes', [
@@ -98,11 +90,13 @@ class TestDeterministicMLPPolicies:
         obs_dim = env_spec.observation_space.flat_dim
         obs = torch.ones([batch_size, obs_dim], dtype=torch.float32)
 
-        policy = DeterministicMLPPolicy(env_spec=env_spec,
-                                        hidden_nonlinearity=None,
-                                        hidden_sizes=hidden_sizes,
-                                        hidden_w_init=nn.init.ones_,
-                                        output_w_init=nn.init.ones_)
+        policy = DeterministicMLPPolicy(
+            env_spec=env_spec,
+            hidden_nonlinearity=None,
+            hidden_sizes=hidden_sizes,
+            hidden_w_init=nn.init.ones_,
+            output_w_init=nn.init.ones_,
+        )
 
         output1 = policy.get_actions(obs)[0]
 
@@ -113,12 +107,14 @@ class TestDeterministicMLPPolicies:
 
     def test_get_action_dict_space(self):
         """Test if observations from dict obs spaces are properly flattened."""
-        env = GymEnv(DummyDictEnv(obs_space_type='box', act_space_type='box'))
-        policy = DeterministicMLPPolicy(env_spec=env.spec,
-                                        hidden_nonlinearity=None,
-                                        hidden_sizes=(1, ),
-                                        hidden_w_init=nn.init.ones_,
-                                        output_w_init=nn.init.ones_)
+        env = GymEnv(DummyDictEnv(obs_space_type="box", act_space_type="box"))
+        policy = DeterministicMLPPolicy(
+            env_spec=env.spec,
+            hidden_nonlinearity=None,
+            hidden_sizes=(1,),
+            hidden_w_init=nn.init.ones_,
+            output_w_init=nn.init.ones_,
+        )
         obs = env.reset()[0]
 
         action, _ = policy.get_action(obs)

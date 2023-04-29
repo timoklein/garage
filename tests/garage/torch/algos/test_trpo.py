@@ -18,8 +18,7 @@ class TestTRPO:
 
     def setup_method(self):
         """Setup method which is called before every test."""
-        self.env = normalize(
-            GymEnv('InvertedDoublePendulum-v2', max_episode_length=100))
+        self.env = normalize(GymEnv("InvertedDoublePendulum-v2", max_episode_length=100))
         self.policy = GaussianMLPPolicy(
             env_spec=self.env.spec,
             hidden_sizes=(64, 64),
@@ -36,17 +35,16 @@ class TestTRPO:
     def test_trpo_pendulum(self):
         """Test TRPO with Pendulum environment."""
         deterministic.set_seed(0)
-        sampler = LocalSampler(
-            agents=self.policy,
-            envs=self.env,
-            max_episode_length=self.env.spec.max_episode_length)
+        sampler = LocalSampler(agents=self.policy, envs=self.env, max_episode_length=self.env.spec.max_episode_length)
         trainer = Trainer(snapshot_config)
-        algo = TRPO(env_spec=self.env.spec,
-                    policy=self.policy,
-                    value_function=self.value_function,
-                    sampler=sampler,
-                    discount=0.99,
-                    gae_lambda=0.98)
+        algo = TRPO(
+            env_spec=self.env.spec,
+            policy=self.policy,
+            value_function=self.value_function,
+            sampler=sampler,
+            discount=0.99,
+            gae_lambda=0.98,
+        )
 
         trainer.setup(algo, self.env)
         last_avg_ret = trainer.train(n_epochs=10, batch_size=100)

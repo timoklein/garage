@@ -57,5 +57,4 @@ class UniformRandomPolicy(Policy):
             List[dict]: Arbitrary policy state information (agent_info).
 
         """
-        return [self._env_spec.action_space.sample()
-                for obs in observations], dict()
+        return [self._env_spec.action_space.sample() for obs in observations], dict()

@@ -49,8 +49,7 @@ class TestTorchConjugateGradientOptimizer:
             return -torch.tensor(kl_calls)
 
         descent_step = torch.tensor([0.05, 0.05])
-        optimizer._backtracking_line_search(params, descent_step, f_loss,
-                                            f_constrint)
+        optimizer._backtracking_line_search(params, descent_step, f_loss, f_constrint)
 
         assert loss_calls == expected_num_steps
         assert kl_calls == expected_num_steps
@@ -82,8 +81,7 @@ class TestTorchConjugateGradientOptimizer:
             return torch.tensor(0)
 
         descent_step = torch.tensor([0.05, 0.05])
-        optimizer._backtracking_line_search(params, descent_step, f_loss,
-                                            f_constrint)
+        optimizer._backtracking_line_search(params, descent_step, f_loss, f_constrint)
 
         p1_steps = []
         p2_steps = []
@@ -125,13 +123,16 @@ def test_hessian_vector_product():
     assert np.allclose(computed_hvp, expected_hvp)
 
 
-@pytest.mark.parametrize('a_val, b_val, x_val, y_val, vector', [
-    (1.0, 1.0, 1.0, 1.0, [10.0, 20.0]),
-    (5.0, 10.0, -2.0, 5.0, [0.0, -1.0]),
-    (0.0, 0.0, 1.1, 0.02, [0.0, 0.0]),
-    (-2.2, -1.5, -12.3, 34.8, [2.2, 5.3]),
-    (-1.5, 0.0, -0.002, 4.93, [0.1, -0.02]),
-])
+@pytest.mark.parametrize(
+    "a_val, b_val, x_val, y_val, vector",
+    [
+        (1.0, 1.0, 1.0, 1.0, [10.0, 20.0]),
+        (5.0, 10.0, -2.0, 5.0, [0.0, -1.0]),
+        (0.0, 0.0, 1.1, 0.02, [0.0, 0.0]),
+        (-2.2, -1.5, -12.3, 34.8, [2.2, 5.3]),
+        (-1.5, 0.0, -0.002, 4.93, [0.1, -0.02]),
+    ],
+)
 def test_hessian_vector_product_2x2(a_val, b_val, x_val, y_val, vector):
     """Test for a function with two variables."""
     obs = [torch.tensor([a_val]), torch.tensor([b_val])]
@@ -150,15 +151,17 @@ def test_hessian_vector_product_2x2(a_val, b_val, x_val, y_val, vector):
     assert np.allclose(hvp, expected_hvp, atol=1e-6)
 
 
-@pytest.mark.parametrize('a_val, b_val, x_val, y_val, vector', [
-    (1.0, 1.0, 1.0, 1.0, [10.0, 20.0]),
-    (5.0, 10.0, -2.0, 5.0, [0.0, -1.0]),
-    (0.0, 0.0, 1.1, 0.02, [0.0, 0.0]),
-    (-2.2, -1.5, -12.3, 34.8, [2.2, 5.3]),
-    (-1.5, 0.0, -0.002, 4.93, [0.1, -0.02]),
-])
-def test_hessian_vector_product_2x2_non_diagonal(a_val, b_val, x_val, y_val,
-                                                 vector):
+@pytest.mark.parametrize(
+    "a_val, b_val, x_val, y_val, vector",
+    [
+        (1.0, 1.0, 1.0, 1.0, [10.0, 20.0]),
+        (5.0, 10.0, -2.0, 5.0, [0.0, -1.0]),
+        (0.0, 0.0, 1.1, 0.02, [0.0, 0.0]),
+        (-2.2, -1.5, -12.3, 34.8, [2.2, 5.3]),
+        (-1.5, 0.0, -0.002, 4.93, [0.1, -0.02]),
+    ],
+)
+def test_hessian_vector_product_2x2_non_diagonal(a_val, b_val, x_val, y_val, vector):
     """Test for a function with two variables and non-diagonal Hessian."""
     obs = [torch.tensor([a_val]), torch.tensor([b_val])]
     vector = torch.tensor([vector])
@@ -184,11 +187,8 @@ def compute_hessian(f, params):
         h_i = []
         for j in params:
             grad = torch.autograd.grad(f, j, create_graph=True)
-            h_ij = torch.autograd.grad(grad,
-                                       i,
-                                       allow_unused=True,
-                                       retain_graph=True)
-            h_ij = (torch.tensor(0.), ) if h_ij[0] is None else h_ij
+            h_ij = torch.autograd.grad(grad, i, allow_unused=True, retain_graph=True)
+            h_ij = (torch.tensor(0.0),) if h_ij[0] is None else h_ij
             h_i.append(h_ij[0])
         h_i = torch.stack(h_i)
         h.append(h_i)

@@ -20,8 +20,7 @@ class ReshapeObservation(gym.Wrapper):
         assert np.prod(shape) == np.prod(env.observation_space.shape)
         _low = env.observation_space.low.flatten()[0]
         _high = env.observation_space.high.flatten()[0]
-        self._observation_space = gym.spaces.Box(
-            _low, _high, shape=shape, dtype=env.observation_space.dtype)
+        self._observation_space = gym.spaces.Box(_low, _high, shape=shape, dtype=env.observation_space.dtype)
         self._shape = shape
 
     @property

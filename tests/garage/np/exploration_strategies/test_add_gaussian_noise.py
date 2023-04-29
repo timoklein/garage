@@ -30,10 +30,10 @@ class ConstantPolicy:
         pass
 
     def get_param_values(self):
-        return {'action': self.action}
+        return {"action": self.action}
 
     def set_param_values(self, params):
-        self.action = params['action']
+        self.action = params["action"]
 
 
 def test_params(env):
@@ -55,11 +55,7 @@ def test_params(env):
 
 def test_decay_period(env):
     policy = ConstantPolicy(env.action_space.sample())
-    exp_policy = AddGaussianNoise(env,
-                                  policy,
-                                  total_timesteps=2,
-                                  max_sigma=1.,
-                                  min_sigma=0.)
+    exp_policy = AddGaussianNoise(env, policy, total_timesteps=2, max_sigma=1.0, min_sigma=0.0)
     assert (exp_policy.get_action(None)[0] != policy.get_action(None)[0]).all()
     assert (exp_policy.get_action(None)[0] != policy.get_action(None)[0]).all()
     assert (exp_policy.get_action(None)[0] == policy.get_action(None)[0]).all()
@@ -67,15 +63,11 @@ def test_decay_period(env):
 
 def test_update(env):
     policy = ConstantPolicy(env.action_space.sample())
-    exp_policy = AddGaussianNoise(env,
-                                  policy,
-                                  total_timesteps=10,
-                                  max_sigma=1.,
-                                  min_sigma=0.)
+    exp_policy = AddGaussianNoise(env, policy, total_timesteps=10, max_sigma=1.0, min_sigma=0.0)
     exp_policy.get_action(None)
     exp_policy.get_action(None)
 
-    DummyBatch = collections.namedtuple('EpisodeBatch', ['lengths'])
+    DummyBatch = collections.namedtuple("EpisodeBatch", ["lengths"])
     batch = DummyBatch(np.array([1, 2]))
 
     # new sigma will be 1 - 0.1 * (1 + 2) = 0.7

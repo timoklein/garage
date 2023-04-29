@@ -20,17 +20,17 @@ def test_forward(hidden_sizes):
     obs_dim = env_spec.observation_space.flat_dim
     obs = torch.ones(obs_dim, dtype=torch.float32).unsqueeze(0)
 
-    qf = DiscreteMLPQFunction(env_spec=env_spec,
-                              hidden_nonlinearity=None,
-                              hidden_sizes=hidden_sizes,
-                              hidden_w_init=nn.init.ones_,
-                              output_w_init=nn.init.ones_)
+    qf = DiscreteMLPQFunction(
+        env_spec=env_spec,
+        hidden_nonlinearity=None,
+        hidden_sizes=hidden_sizes,
+        hidden_w_init=nn.init.ones_,
+        output_w_init=nn.init.ones_,
+    )
 
     output = qf(obs)
 
-    expected_output = torch.full([1, 1],
-                                 fill_value=(obs_dim) * np.prod(hidden_sizes),
-                                 dtype=torch.float32)
+    expected_output = torch.full([1, 1], fill_value=(obs_dim) * np.prod(hidden_sizes), dtype=torch.float32)
     assert torch.eq(output, expected_output).all()
 
 
@@ -48,11 +48,13 @@ def test_output_shape(batch_size, hidden_sizes):
     obs_dim = env_spec.observation_space.flat_dim
     obs = torch.ones(batch_size, obs_dim, dtype=torch.float32)
 
-    qf = DiscreteMLPQFunction(env_spec=env_spec,
-                              hidden_nonlinearity=None,
-                              hidden_sizes=hidden_sizes,
-                              hidden_w_init=nn.init.ones_,
-                              output_w_init=nn.init.ones_)
+    qf = DiscreteMLPQFunction(
+        env_spec=env_spec,
+        hidden_nonlinearity=None,
+        hidden_sizes=hidden_sizes,
+        hidden_w_init=nn.init.ones_,
+        output_w_init=nn.init.ones_,
+    )
     output = qf(obs)
 
     assert output.shape == (batch_size, env_spec.action_space.flat_dim)
@@ -67,11 +69,13 @@ def test_is_pickleable(hidden_sizes):
     obs_dim = env_spec.observation_space.flat_dim
     obs = torch.ones(obs_dim, dtype=torch.float32).unsqueeze(0)
 
-    qf = DiscreteMLPQFunction(env_spec=env_spec,
-                              hidden_nonlinearity=None,
-                              hidden_sizes=hidden_sizes,
-                              hidden_w_init=nn.init.ones_,
-                              output_w_init=nn.init.ones_)
+    qf = DiscreteMLPQFunction(
+        env_spec=env_spec,
+        hidden_nonlinearity=None,
+        hidden_sizes=hidden_sizes,
+        hidden_w_init=nn.init.ones_,
+        output_w_init=nn.init.ones_,
+    )
 
     output1 = qf(obs)
 

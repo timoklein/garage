@@ -26,54 +26,47 @@ def eps_data():
 
     # env_infos
     env_infos = dict()
-    env_infos['goal'] = np.stack([[1, 1]] * n_t)
-    env_infos['foo'] = np.arange(n_t)
+    env_infos["goal"] = np.stack([[1, 1]] * n_t)
+    env_infos["foo"] = np.arange(n_t)
 
     # agent_infos
     agent_infos = dict()
-    agent_infos['prev_action'] = act
-    agent_infos['hidden'] = np.arange(n_t)
+    agent_infos["prev_action"] = act
+    agent_infos["hidden"] = np.arange(n_t)
 
     # step_types
     step_types = []
     for size in lens:
-        step_types.extend([StepType.FIRST] + [StepType.MID] * (size - 2) +
-                          [StepType.TERMINAL])
+        step_types.extend([StepType.FIRST] + [StepType.MID] * (size - 2) + [StepType.TERMINAL])
     step_types = np.array(step_types, dtype=StepType)
 
     # episode_infos
     episode_infos = dict()
-    episode_infos['task_one_hot'] = np.stack([[1, 1]] * len(lens))
+    episode_infos["task_one_hot"] = np.stack([[1, 1]] * len(lens))
 
     return {
-        'env_spec': env_spec,
-        'episode_infos': episode_infos,
-        'observations': obs,
-        'last_observations': last_obs,
-        'actions': act,
-        'rewards': rew,
-        'env_infos': env_infos,
-        'agent_infos': agent_infos,
-        'step_types': step_types,
-        'lengths': lens
+        "env_spec": env_spec,
+        "episode_infos": episode_infos,
+        "observations": obs,
+        "last_observations": last_obs,
+        "actions": act,
+        "rewards": rew,
+        "env_infos": env_infos,
+        "agent_infos": agent_infos,
+        "step_types": step_types,
+        "lengths": lens,
     }
 
 
 class TestPathBuffer:
-
     def test_add_path_dtype(self):
         env = DummyDiscreteEnv()
         obs = env.reset()
         replay_buffer = PathBuffer(capacity_in_transitions=3)
-        replay_buffer.add_path({
-            'observations':
-            np.array([obs]),
-            'actions':
-            np.array([[env.action_space.sample()]])
-        })
+        replay_buffer.add_path({"observations": np.array([obs]), "actions": np.array([[env.action_space.sample()]])})
         sample = replay_buffer.sample_transitions(1)
-        sample_obs = sample['observations']
-        sample_action = sample['actions']
+        sample_obs = sample["observations"]
+        sample_action = sample["actions"]
 
         assert sample_obs.dtype == env.observation_space.dtype
         assert sample_action.dtype == env.action_space.dtype
@@ -90,10 +83,10 @@ class TestPathBuffer:
         replay_buffer = PathBuffer(capacity_in_transitions=3)
         replay_buffer.add_path(dict(obs=obs))
 
-        sampled_obs = replay_buffer.sample_transitions(3)['obs']
+        sampled_obs = replay_buffer.sample_transitions(3)["obs"]
         assert (sampled_obs == np.array([[1], [1], [1]])).all()
 
-        sampled_path_obs = replay_buffer.sample_path()['obs']
+        sampled_path_obs = replay_buffer.sample_path()["obs"]
         assert (sampled_path_obs == np.array([[1], [1]])).all()
 
         obs2 = np.array([[2], [3]])
@@ -111,12 +104,12 @@ class TestPathBuffer:
             assert replay_buffer.add_path(dict(obs=obs4))
 
         # Can still sample from old path
-        new_sampled_obs = replay_buffer.sample_transitions(1000)['obs']
+        new_sampled_obs = replay_buffer.sample_transitions(1000)["obs"]
         assert set(new_sampled_obs.flatten()) == {1, 2, 3}
 
         # Can't sample complete old path
         for _ in range(100):
-            new_sampled_path_obs = replay_buffer.sample_path()['obs']
+            new_sampled_path_obs = replay_buffer.sample_path()["obs"]
             assert (new_sampled_path_obs == np.array([[2], [3]])).all()
 
         replay_buffer.clear()

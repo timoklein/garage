@@ -6,6 +6,8 @@
 
 # garage
 
+> Garage with all tensorflow dependencies removed.
+
 garage is a toolkit for developing and evaluating reinforcement learning
 algorithms, and an accompanying library of state-of-the-art implementations
 built using that toolkit.

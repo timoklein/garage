@@ -19,12 +19,12 @@ from garage.trainer import Trainer
 
 
 @click.command()
-@click.option('--seed', default=1)
-@click.option('--epochs', default=500)
-@click.option('--batch_size', default=1024)
-@click.option('--n_workers', default=psutil.cpu_count(logical=False))
-@click.option('--n_tasks', default=10)
-@wrap_experiment(snapshot_mode='all')
+@click.option("--seed", default=1)
+@click.option("--epochs", default=500)
+@click.option("--batch_size", default=1024)
+@click.option("--n_workers", default=psutil.cpu_count(logical=False))
+@click.option("--n_tasks", default=10)
+@wrap_experiment(snapshot_mode="all")
 def mttrpo_metaworld_mt10(ctxt, seed, epochs, batch_size, n_workers, n_tasks):
     """Set up environment and algorithm and run the task.
 
@@ -41,16 +41,11 @@ def mttrpo_metaworld_mt10(ctxt, seed, epochs, batch_size, n_workers, n_tasks):
     """
     set_seed(seed)
     mt10 = metaworld.MT10()
-    train_task_sampler = MetaWorldTaskSampler(mt10,
-                                              'train',
-                                              lambda env, _: normalize(env),
-                                              add_env_onehot=True)
+    train_task_sampler = MetaWorldTaskSampler(mt10, "train", lambda env, _: normalize(env), add_env_onehot=True)
     assert n_tasks % 10 == 0
     assert n_tasks <= 500
     envs = [env_up() for env_up in train_task_sampler.sample(n_tasks)]
-    env = MultiEnvWrapper(envs,
-                          sample_strategy=round_robin_strategy,
-                          mode='vanilla')
+    env = MultiEnvWrapper(envs, sample_strategy=round_robin_strategy, mode="vanilla")
 
     policy = GaussianMLPPolicy(
         env_spec=env.spec,
@@ -59,22 +54,15 @@ def mttrpo_metaworld_mt10(ctxt, seed, epochs, batch_size, n_workers, n_tasks):
         output_nonlinearity=None,
     )
 
-    value_function = GaussianMLPValueFunction(env_spec=env.spec,
-                                              hidden_sizes=(32, 32),
-                                              hidden_nonlinearity=torch.tanh,
-                                              output_nonlinearity=None)
+    value_function = GaussianMLPValueFunction(
+        env_spec=env.spec, hidden_sizes=(32, 32), hidden_nonlinearity=torch.tanh, output_nonlinearity=None
+    )
 
-    sampler = RaySampler(agents=policy,
-                         envs=env,
-                         max_episode_length=env.spec.max_episode_length,
-                         n_workers=n_workers)
+    sampler = RaySampler(agents=policy, envs=env, max_episode_length=env.spec.max_episode_length, n_workers=n_workers)
 
-    algo = TRPO(env_spec=env.spec,
-                policy=policy,
-                value_function=value_function,
-                sampler=sampler,
-                discount=0.99,
-                gae_lambda=0.95)
+    algo = TRPO(
+        env_spec=env.spec, policy=policy, value_function=value_function, sampler=sampler, discount=0.99, gae_lambda=0.95
+    )
 
     trainer = Trainer(ctxt)
     trainer.setup(algo, env)

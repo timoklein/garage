@@ -13,7 +13,6 @@ from tests.helpers import step_env
 
 @pytest.mark.mujoco
 class TestDMControlEnv:
-
     def test_can_step(self):
         domain_name, task_name = dm_control.suite.ALL_TASKS[0]
         env = DMControlEnv.from_suite(domain_name, task_name)
@@ -30,8 +29,7 @@ class TestDMControlEnv:
         env.close()
 
     @pytest.mark.nightly
-    @pytest.mark.parametrize('domain_name, task_name',
-                             dm_control.suite.ALL_TASKS)
+    @pytest.mark.parametrize("domain_name, task_name", dm_control.suite.ALL_TASKS)
     def test_all_can_step(self, domain_name, task_name):
         env = DMControlEnv.from_suite(domain_name, task_name)
         ob_space = env.observation_space
@@ -59,8 +57,7 @@ class TestDMControlEnv:
         env.close()
 
     @pytest.mark.nightly
-    @pytest.mark.parametrize('domain_name, task_name',
-                             dm_control.suite.ALL_TASKS)
+    @pytest.mark.parametrize("domain_name, task_name", dm_control.suite.ALL_TASKS)
     def test_all_pickleable(self, domain_name, task_name):
         env = DMControlEnv.from_suite(domain_name, task_name)
         round_trip = pickle.loads(pickle.dumps(env))
@@ -86,8 +83,7 @@ class TestDMControlEnv:
         env.close()
 
     @pytest.mark.nightly
-    @pytest.mark.parametrize('domain_name, task_name',
-                             dm_control.suite.ALL_TASKS)
+    @pytest.mark.parametrize("domain_name, task_name", dm_control.suite.ALL_TASKS)
     def test_all_does_not_modify_actions(self, domain_name, task_name):
         env = DMControlEnv.from_suite(domain_name, task_name)
         a = env.action_space.sample()
@@ -103,7 +99,7 @@ class TestDMControlEnv:
     def test_catch_no_reset(self):
         domain_name, task_name = dm_control.suite.ALL_TASKS[0]
         env = DMControlEnv.from_suite(domain_name, task_name)
-        with pytest.raises(RuntimeError, match='reset()'):
+        with pytest.raises(RuntimeError, match="reset()"):
             env.step(1)
 
     def test_done_resets_step_cnt(self):

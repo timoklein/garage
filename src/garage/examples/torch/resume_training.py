@@ -8,9 +8,7 @@ from garage.trainer import Trainer
 
 
 @click.command()
-@click.option('--saved_dir',
-              required=True,
-              help='Path where snapshots are saved.')
+@click.option("--saved_dir", required=True, help="Path where snapshots are saved.")
 @wrap_experiment
 def resume_experiment(ctxt, saved_dir):
     """Resume a PyTorch experiment.

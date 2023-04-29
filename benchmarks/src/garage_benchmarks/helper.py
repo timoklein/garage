@@ -70,33 +70,33 @@ def benchmark(exec_func=None, *, plot=True, auto=False):
         # pylint: disable=global-statement
         global _plot, _log_dir, _auto
         _plot = {} if plot else None
-        plt.close('all')
+        plt.close("all")
 
         _log_dir = _get_log_dir(exec_func.__name__)
 
         if os.path.exists(_log_dir):
             count = 1
-            while os.path.exists(_log_dir + '_' + str(count)):
+            while os.path.exists(_log_dir + "_" + str(count)):
                 count += 1
-            _log_dir = _log_dir + '_' + str(count)
+            _log_dir = _log_dir + "_" + str(count)
 
         if auto:
             _auto = auto
-            auto_dir = os.path.join(_log_dir, 'auto')
+            auto_dir = os.path.join(_log_dir, "auto")
             os.makedirs(auto_dir)
 
         exec_func()
 
         if plot:
-            plot_dir = os.path.join(_log_dir, 'plot')
+            plot_dir = os.path.join(_log_dir, "plot")
             os.makedirs(plot_dir)
             for env_id in _plot:
                 plt.figure(env_id)
                 plt.legend()
-                plt.xlabel(_plot[env_id]['xlabel'])
-                plt.ylabel(_plot[env_id]['ylabel'])
+                plt.xlabel(_plot[env_id]["xlabel"])
+                plt.ylabel(_plot[env_id]["ylabel"])
                 plt.title(env_id)
-                plt.savefig(plot_dir + '/' + env_id)
+                plt.savefig(plot_dir + "/" + env_id)
 
         if auto:
             _upload_to_gcp_storage(_log_dir)
@@ -104,14 +104,16 @@ def benchmark(exec_func=None, *, plot=True, auto=False):
     return wrapper_func
 
 
-def iterate_experiments(func,
-                        env_ids,
-                        snapshot_config=None,
-                        seeds=None,
-                        xcolumn='TotalEnvSteps',
-                        xlabel='Total Environment Steps',
-                        ycolumn='Evaluation/AverageReturn',
-                        ylabel='Average Return'):
+def iterate_experiments(
+    func,
+    env_ids,
+    snapshot_config=None,
+    seeds=None,
+    xcolumn="TotalEnvSteps",
+    xlabel="Total Environment Steps",
+    ycolumn="Evaluation/AverageReturn",
+    ylabel="Average Return",
+):
     """Iterate experiments for benchmarking over env_ids and seeds.
 
     Args:
@@ -127,7 +129,7 @@ def iterate_experiments(func,
         ylabel (str): Label name for y axis.
 
     """
-    func_name = func.__name__.replace('_', '-')
+    func_name = func.__name__.replace("_", "-")
 
     if seeds is None:
         seeds = random.sample(range(100), 4)
@@ -136,10 +138,10 @@ def iterate_experiments(func,
         task_ys = []
 
         if _plot is not None and env_id not in _plot:
-            _plot[env_id] = {'xlabel': xlabel, 'ylabel': ylabel}
+            _plot[env_id] = {"xlabel": xlabel, "ylabel": ylabel}
 
         for seed in seeds:
-            exp_name = func_name + '_' + env_id + '_' + str(seed)
+            exp_name = func_name + "_" + env_id + "_" + str(seed)
             sub_log_dir = os.path.join(_log_dir, exp_name)
 
             tf.compat.v1.reset_default_graph()
@@ -161,11 +163,9 @@ def iterate_experiments(func,
                 plt.figure(env_id)
 
                 plt.plot(xs, ys_mean, label=func_name)
-                plt.fill_between(xs, (ys_mean - ys_std), (ys_mean + ys_std),
-                                 alpha=.1)
+                plt.fill_between(xs, (ys_mean - ys_std), (ys_mean + ys_std), alpha=0.1)
             if _auto:
-                _export_to_json(env_id + '_' + func_name, xs, xlabel, ys_mean,
-                                ylabel, ys_std)
+                _export_to_json(env_id + "_" + func_name, xs, xlabel, ys_mean, ylabel, ys_std)
 
 
 def _get_log_dir(exec_func_name):
@@ -179,7 +179,7 @@ def _get_log_dir(exec_func_name):
 
     """
     cwd = pathlib.Path.cwd()
-    return str(cwd.joinpath('data', 'local', 'benchmarks', exec_func_name))
+    return str(cwd.joinpath("data", "local", "benchmarks", exec_func_name))
 
 
 def _read_csv(log_dir, xcolumn, ycolumn):
@@ -196,7 +196,7 @@ def _read_csv(log_dir, xcolumn, ycolumn):
 
     """
     xs, ys = [], []
-    with open(os.path.join(log_dir, 'progress.csv'), 'r') as csv_file:
+    with open(os.path.join(log_dir, "progress.csv"), "r") as csv_file:
         for row in csv.DictReader(csv_file):
             xs.append(float(row[xcolumn]))
             ys.append(float(row[ycolumn]))
@@ -217,16 +217,20 @@ def _export_to_json(json_name, xs, xlabel, ys, ylabel, ys_std):
             upper and lower boundary for confidence interval.
 
     """
-    json_path = os.path.join(_log_dir, 'auto', json_name + '.json')
-    with open(json_path, 'w') as json_file:
+    json_path = os.path.join(_log_dir, "auto", json_name + ".json")
+    with open(json_path, "w") as json_file:
         json.dump(
-            dict(x=xs,
-                 y=ys.tolist(),
-                 y_min=(ys - ys_std).tolist(),
-                 y_max=(ys + ys_std).tolist(),
-                 xlabel=xlabel,
-                 ylabel=ylabel,
-                 git_hash=_get_git_hash()), json_file)
+            dict(
+                x=xs,
+                y=ys.tolist(),
+                y_min=(ys - ys_std).tolist(),
+                y_max=(ys + ys_std).tolist(),
+                xlabel=xlabel,
+                ylabel=ylabel,
+                git_hash=_get_git_hash(),
+            ),
+            json_file,
+        )
 
 
 def _get_git_hash():
@@ -236,8 +240,8 @@ def _get_git_hash():
         str: git hash.
 
     """
-    cmd = ['git', 'rev-parse', 'HEAD']
-    return subprocess.check_output(cmd).decode('ascii').strip()
+    cmd = ["git", "rev-parse", "HEAD"]
+    return subprocess.check_output(cmd).decode("ascii").strip()
 
 
 def _upload_to_gcp_storage(exec_dir):
@@ -247,7 +251,7 @@ def _upload_to_gcp_storage(exec_dir):
         exec_dir (str): The execution directory.
 
     """
-    _bucket = storage.Client().bucket('resl-garage-benchmarks')
+    _bucket = storage.Client().bucket("resl-garage-benchmarks")
     exec_name = os.path.basename(exec_dir)
 
     for folder_name in os.listdir(exec_dir):

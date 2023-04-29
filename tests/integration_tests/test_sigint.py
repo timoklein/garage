@@ -9,13 +9,14 @@ import psutil
 import pytest
 
 scripts = [
-    'tests/fixtures/algos/nop_pendulum_instrumented.py',
-    'tests/fixtures/tf/trpo_pendulum_instrumented.py',
+    "tests/fixtures/algos/nop_pendulum_instrumented.py",
+    "tests/fixtures/tf/trpo_pendulum_instrumented.py",
 ]
 
 
 class ExpLifecycle(IntEnum):
     """Messages sent from InstrumentedBatchPolopt to this test."""
+
     START = 1
     OBTAIN_SAMPLES = 2
     PROCESS_SAMPLES = 3
@@ -27,7 +28,7 @@ class ExpLifecycle(IntEnum):
 def interrupt_experiment(experiment_script, lifecycle_stage):
     """Interrupt the experiment and verify no children processes remain."""
 
-    args = ['python', experiment_script]
+    args = ["python", experiment_script]
     # The pre-executed function setpgrp allows to create a process group
     # so signals are propagated to all the process in the group.
     proc = subprocess.Popen(args, preexec_fn=os.setpgrp)
@@ -35,7 +36,7 @@ def interrupt_experiment(experiment_script, lifecycle_stage):
 
     # This socket connects with the client in the algorithm, so we're
     # notified of the different stages in the experiment lifecycle.
-    address = ('localhost', 6000)
+    address = ("localhost", 6000)
     listener = Listener(address)
     conn = listener.accept()
 
@@ -51,10 +52,7 @@ def interrupt_experiment(experiment_script, lifecycle_stage):
             # Remove the semaphore tracker from the list of children, since
             # we cannot stop its execution.
             for child in children:
-                if any([
-                        'multiprocessing.semaphore_tracker' in cmd
-                        for cmd in child.cmdline()
-                ]):
+                if any(["multiprocessing.semaphore_tracker" in cmd for cmd in child.cmdline()]):
                     children.remove(child)
             # We append the launcher to the list of children so later we can
             # check it has died.
@@ -70,15 +68,12 @@ def interrupt_experiment(experiment_script, lifecycle_stage):
 
     # If any, notify the zombie and sleeping processes and fail the test
     clean_exit = True
-    error_msg = ''
+    error_msg = ""
     for child in alive:
-        error_msg += (
-            str(child.as_dict(attrs=['pid', 'name', 'status', 'cmdline'])) +
-            '\n')
+        error_msg += str(child.as_dict(attrs=["pid", "name", "status", "cmdline"])) + "\n"
         clean_exit = False
 
-    error_msg = ("These processes didn't die during %s:\n" %
-                 (lifecycle_stage) + error_msg)
+    error_msg = "These processes didn't die during %s:\n" % (lifecycle_stage) + error_msg
 
     for child in alive:
         os.kill(child.pid, signal.SIGINT)
@@ -87,12 +82,10 @@ def interrupt_experiment(experiment_script, lifecycle_stage):
 
 
 class TestSigInt:
-
     test_sigint_params = list(itertools.product(scripts, ExpLifecycle))
 
     @pytest.mark.flaky
-    @pytest.mark.parametrize('experiment_script, exp_stage',
-                             test_sigint_params)
+    @pytest.mark.parametrize("experiment_script, exp_stage", test_sigint_params)
     def test_sigint(self, experiment_script, exp_stage):
         """Interrupt the experiment in different stages of its lifecyle."""
         interrupt_experiment(experiment_script, exp_stage)

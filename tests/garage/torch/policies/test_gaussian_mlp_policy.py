@@ -17,6 +17,7 @@ from tests.fixtures.envs.dummy import DummyBoxEnv, DummyDictEnv
 
 class TestGaussianMLPPolicies:
     """Class for Testing Gaussian MlP Policy."""
+
     # yapf: disable
     @pytest.mark.parametrize('hidden_sizes', [
         (1, ), (2, ), (3, ), (1, 4), (3, 5)])
@@ -27,29 +28,27 @@ class TestGaussianMLPPolicies:
         obs_dim = env_spec.observation_space.flat_dim
         act_dim = env_spec.action_space.flat_dim
         obs = torch.ones(obs_dim, dtype=torch.float32)
-        init_std = 2.
+        init_std = 2.0
 
-        policy = GaussianMLPPolicy(env_spec=env_spec,
-                                   hidden_sizes=hidden_sizes,
-                                   init_std=init_std,
-                                   hidden_nonlinearity=None,
-                                   std_parameterization='exp',
-                                   hidden_w_init=nn.init.ones_,
-                                   output_w_init=nn.init.ones_)
+        policy = GaussianMLPPolicy(
+            env_spec=env_spec,
+            hidden_sizes=hidden_sizes,
+            init_std=init_std,
+            hidden_nonlinearity=None,
+            std_parameterization="exp",
+            hidden_w_init=nn.init.ones_,
+            output_w_init=nn.init.ones_,
+        )
 
         dist = policy(obs)[0]
 
-        expected_mean = torch.full(
-            (act_dim, ),
-            obs_dim * (torch.Tensor(hidden_sizes).prod().item()),
-            dtype=torch.float)
+        expected_mean = torch.full((act_dim,), obs_dim * (torch.Tensor(hidden_sizes).prod().item()), dtype=torch.float)
         expected_variance = init_std**2
         action, prob = policy.get_action(obs)
 
-        assert np.array_equal(prob['mean'], expected_mean.numpy())
-        assert dist.variance.equal(
-            torch.full((act_dim, ), expected_variance, dtype=torch.float))
-        assert action.shape == (act_dim, )
+        assert np.array_equal(prob["mean"], expected_mean.numpy())
+        assert dist.variance.equal(torch.full((act_dim,), expected_variance, dtype=torch.float))
+        assert action.shape == (act_dim,)
 
     # yapf: disable
     @pytest.mark.parametrize('hidden_sizes', [
@@ -61,29 +60,27 @@ class TestGaussianMLPPolicies:
         obs_dim = env_spec.observation_space.flat_dim
         act_dim = env_spec.action_space.flat_dim
         obs = np.ones(obs_dim, dtype=np.float32)
-        init_std = 2.
+        init_std = 2.0
 
-        policy = GaussianMLPPolicy(env_spec=env_spec,
-                                   hidden_sizes=hidden_sizes,
-                                   init_std=init_std,
-                                   hidden_nonlinearity=None,
-                                   std_parameterization='exp',
-                                   hidden_w_init=nn.init.ones_,
-                                   output_w_init=nn.init.ones_)
+        policy = GaussianMLPPolicy(
+            env_spec=env_spec,
+            hidden_sizes=hidden_sizes,
+            init_std=init_std,
+            hidden_nonlinearity=None,
+            std_parameterization="exp",
+            hidden_w_init=nn.init.ones_,
+            output_w_init=nn.init.ones_,
+        )
 
         dist = policy(torch.from_numpy(obs))[0]
 
-        expected_mean = torch.full(
-            (act_dim, ),
-            obs_dim * (torch.Tensor(hidden_sizes).prod().item()),
-            dtype=torch.float)
+        expected_mean = torch.full((act_dim,), obs_dim * (torch.Tensor(hidden_sizes).prod().item()), dtype=torch.float)
         expected_variance = init_std**2
         action, prob = policy.get_action(obs)
 
-        assert np.array_equal(prob['mean'], expected_mean.numpy())
-        assert dist.variance.equal(
-            torch.full((act_dim, ), expected_variance, dtype=torch.float))
-        assert action.shape == (act_dim, )
+        assert np.array_equal(prob["mean"], expected_mean.numpy())
+        assert dist.variance.equal(torch.full((act_dim,), expected_variance, dtype=torch.float))
+        assert action.shape == (act_dim,)
 
     # yapf: disable
     @pytest.mark.parametrize('batch_size, hidden_sizes', [
@@ -100,30 +97,28 @@ class TestGaussianMLPPolicies:
         obs_dim = env_spec.observation_space.flat_dim
         act_dim = env_spec.action_space.flat_dim
         obs = torch.ones([batch_size, obs_dim], dtype=torch.float32)
-        init_std = 2.
+        init_std = 2.0
 
-        policy = GaussianMLPPolicy(env_spec=env_spec,
-                                   hidden_sizes=hidden_sizes,
-                                   init_std=init_std,
-                                   hidden_nonlinearity=None,
-                                   std_parameterization='exp',
-                                   hidden_w_init=nn.init.ones_,
-                                   output_w_init=nn.init.ones_)
+        policy = GaussianMLPPolicy(
+            env_spec=env_spec,
+            hidden_sizes=hidden_sizes,
+            init_std=init_std,
+            hidden_nonlinearity=None,
+            std_parameterization="exp",
+            hidden_w_init=nn.init.ones_,
+            output_w_init=nn.init.ones_,
+        )
 
         dist = policy(obs)[0]
 
-        expected_mean = torch.full([batch_size, act_dim],
-                                   obs_dim *
-                                   (torch.Tensor(hidden_sizes).prod().item()),
-                                   dtype=torch.float)
+        expected_mean = torch.full(
+            [batch_size, act_dim], obs_dim * (torch.Tensor(hidden_sizes).prod().item()), dtype=torch.float
+        )
         expected_variance = init_std**2
         action, prob = policy.get_actions(obs)
 
-        assert np.array_equal(prob['mean'], expected_mean.numpy())
-        assert dist.variance.equal(
-            torch.full((batch_size, act_dim),
-                       expected_variance,
-                       dtype=torch.float))
+        assert np.array_equal(prob["mean"], expected_mean.numpy())
+        assert dist.variance.equal(torch.full((batch_size, act_dim), expected_variance, dtype=torch.float))
         assert action.shape == (batch_size, act_dim)
 
     # yapf: disable
@@ -141,30 +136,28 @@ class TestGaussianMLPPolicies:
         obs_dim = env_spec.observation_space.flat_dim
         act_dim = env_spec.action_space.flat_dim
         obs = np.ones((batch_size, obs_dim), dtype=np.float32)
-        init_std = 2.
+        init_std = 2.0
 
-        policy = GaussianMLPPolicy(env_spec=env_spec,
-                                   hidden_sizes=hidden_sizes,
-                                   init_std=init_std,
-                                   hidden_nonlinearity=None,
-                                   std_parameterization='exp',
-                                   hidden_w_init=nn.init.ones_,
-                                   output_w_init=nn.init.ones_)
+        policy = GaussianMLPPolicy(
+            env_spec=env_spec,
+            hidden_sizes=hidden_sizes,
+            init_std=init_std,
+            hidden_nonlinearity=None,
+            std_parameterization="exp",
+            hidden_w_init=nn.init.ones_,
+            output_w_init=nn.init.ones_,
+        )
 
         dist = policy(torch.from_numpy(obs))[0]
 
-        expected_mean = torch.full([batch_size, act_dim],
-                                   obs_dim *
-                                   (torch.Tensor(hidden_sizes).prod().item()),
-                                   dtype=torch.float)
+        expected_mean = torch.full(
+            [batch_size, act_dim], obs_dim * (torch.Tensor(hidden_sizes).prod().item()), dtype=torch.float
+        )
         expected_variance = init_std**2
         action, prob = policy.get_actions(obs)
 
-        assert np.array_equal(prob['mean'], expected_mean.numpy())
-        assert dist.variance.equal(
-            torch.full((batch_size, act_dim),
-                       expected_variance,
-                       dtype=torch.float))
+        assert np.array_equal(prob["mean"], expected_mean.numpy())
+        assert dist.variance.equal(torch.full((batch_size, act_dim), expected_variance, dtype=torch.float))
         assert action.shape == (batch_size, act_dim)
 
     # yapf: disable
@@ -181,15 +174,17 @@ class TestGaussianMLPPolicies:
         env_spec = GymEnv(DummyBoxEnv())
         obs_dim = env_spec.observation_space.flat_dim
         obs = torch.ones([batch_size, obs_dim], dtype=torch.float32)
-        init_std = 2.
+        init_std = 2.0
 
-        policy = GaussianMLPPolicy(env_spec=env_spec,
-                                   hidden_sizes=hidden_sizes,
-                                   init_std=init_std,
-                                   hidden_nonlinearity=None,
-                                   std_parameterization='exp',
-                                   hidden_w_init=nn.init.ones_,
-                                   output_w_init=nn.init.ones_)
+        policy = GaussianMLPPolicy(
+            env_spec=env_spec,
+            hidden_sizes=hidden_sizes,
+            init_std=init_std,
+            hidden_nonlinearity=None,
+            std_parameterization="exp",
+            hidden_w_init=nn.init.ones_,
+            output_w_init=nn.init.ones_,
+        )
 
         output1_action, output1_prob = policy.get_actions(obs)
 
@@ -197,17 +192,19 @@ class TestGaussianMLPPolicies:
         policy_pickled = pickle.loads(p)
         output2_action, output2_prob = policy_pickled.get_actions(obs)
 
-        assert np.array_equal(output1_prob['mean'], output2_prob['mean'])
+        assert np.array_equal(output1_prob["mean"], output2_prob["mean"])
         assert output1_action.shape == output2_action.shape
 
     def test_get_action_dict_space(self):
         """Test if observations from dict obs spaces are properly flattened."""
-        env = GymEnv(DummyDictEnv(obs_space_type='box', act_space_type='box'))
-        policy = GaussianMLPPolicy(env_spec=env.spec,
-                                   hidden_nonlinearity=None,
-                                   hidden_sizes=(1, ),
-                                   hidden_w_init=nn.init.ones_,
-                                   output_w_init=nn.init.ones_)
+        env = GymEnv(DummyDictEnv(obs_space_type="box", act_space_type="box"))
+        policy = GaussianMLPPolicy(
+            env_spec=env.spec,
+            hidden_nonlinearity=None,
+            hidden_sizes=(1,),
+            hidden_w_init=nn.init.ones_,
+            output_w_init=nn.init.ones_,
+        )
         obs = env.reset()[0]
 
         action, _ = policy.get_action(obs)

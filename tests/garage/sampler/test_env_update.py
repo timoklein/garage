@@ -2,11 +2,10 @@ from garage.sampler import SetTaskUpdate
 
 from tests.fixtures.envs.dummy import DummyBoxEnv
 
-TEST_TASK = ['test_task']
+TEST_TASK = ["test_task"]
 
 
 class MTDummyEnv(DummyBoxEnv):
-
     def set_task(self, task):
         assert task == TEST_TASK
 

@@ -25,7 +25,7 @@ def test_mtsac_get_log_alpha(monkeypatch):
     MTSAC uses disentangled alphas, meaning that
 
     """
-    env_names = ['CartPole-v0', 'CartPole-v1']
+    env_names = ["CartPole-v0", "CartPole-v1"]
     task_envs = [GymEnv(name, max_episode_length=100) for name in env_names]
     env = MultiEnvWrapper(task_envs, sample_strategy=round_robin_strategy)
     deterministic.set_seed(0)
@@ -34,36 +34,36 @@ def test_mtsac_get_log_alpha(monkeypatch):
         hidden_sizes=[1, 1],
         hidden_nonlinearity=torch.nn.ReLU,
         output_nonlinearity=None,
-        min_std=np.exp(-20.),
-        max_std=np.exp(2.),
+        min_std=np.exp(-20.0),
+        max_std=np.exp(2.0),
     )
 
-    qf1 = ContinuousMLPQFunction(env_spec=env.spec,
-                                 hidden_sizes=[1, 1],
-                                 hidden_nonlinearity=F.relu)
+    qf1 = ContinuousMLPQFunction(env_spec=env.spec, hidden_sizes=[1, 1], hidden_nonlinearity=F.relu)
 
-    qf2 = ContinuousMLPQFunction(env_spec=env.spec,
-                                 hidden_sizes=[1, 1],
-                                 hidden_nonlinearity=F.relu)
-    replay_buffer = PathBuffer(capacity_in_transitions=int(1e6), )
+    qf2 = ContinuousMLPQFunction(env_spec=env.spec, hidden_sizes=[1, 1], hidden_nonlinearity=F.relu)
+    replay_buffer = PathBuffer(
+        capacity_in_transitions=int(1e6),
+    )
 
     num_tasks = 2
     buffer_batch_size = 2
-    mtsac = MTSAC(policy=policy,
-                  qf1=qf1,
-                  qf2=qf2,
-                  sampler=None,
-                  gradient_steps_per_itr=150,
-                  eval_env=[env],
-                  env_spec=env.spec,
-                  num_tasks=num_tasks,
-                  steps_per_epoch=5,
-                  replay_buffer=replay_buffer,
-                  min_buffer_size=1e3,
-                  target_update_tau=5e-3,
-                  discount=0.99,
-                  buffer_batch_size=buffer_batch_size)
-    monkeypatch.setattr(mtsac, '_log_alpha', torch.Tensor([1., 2.]))
+    mtsac = MTSAC(
+        policy=policy,
+        qf1=qf1,
+        qf2=qf2,
+        sampler=None,
+        gradient_steps_per_itr=150,
+        eval_env=[env],
+        env_spec=env.spec,
+        num_tasks=num_tasks,
+        steps_per_epoch=5,
+        replay_buffer=replay_buffer,
+        min_buffer_size=1e3,
+        target_update_tau=5e-3,
+        discount=0.99,
+        buffer_batch_size=buffer_batch_size,
+    )
+    monkeypatch.setattr(mtsac, "_log_alpha", torch.Tensor([1.0, 2.0]))
     for i, _ in enumerate(env_names):
         obs = torch.Tensor([env.reset()[0]] * buffer_batch_size)
         log_alpha = mtsac._get_log_alpha(dict(observation=obs))
@@ -80,7 +80,7 @@ def test_mtsac_get_log_alpha_incorrect_num_tasks(monkeypatch):
     MTSAC uses disentangled alphas, meaning that
 
     """
-    env_names = ['CartPole-v0', 'CartPole-v1']
+    env_names = ["CartPole-v0", "CartPole-v1"]
     task_envs = [GymEnv(name, max_episode_length=150) for name in env_names]
     env = MultiEnvWrapper(task_envs, sample_strategy=round_robin_strategy)
     deterministic.set_seed(0)
@@ -89,38 +89,40 @@ def test_mtsac_get_log_alpha_incorrect_num_tasks(monkeypatch):
         hidden_sizes=[1, 1],
         hidden_nonlinearity=torch.nn.ReLU,
         output_nonlinearity=None,
-        min_std=np.exp(-20.),
-        max_std=np.exp(2.),
+        min_std=np.exp(-20.0),
+        max_std=np.exp(2.0),
     )
 
-    qf1 = ContinuousMLPQFunction(env_spec=env.spec,
-                                 hidden_sizes=[1, 1],
-                                 hidden_nonlinearity=F.relu)
+    qf1 = ContinuousMLPQFunction(env_spec=env.spec, hidden_sizes=[1, 1], hidden_nonlinearity=F.relu)
 
-    qf2 = ContinuousMLPQFunction(env_spec=env.spec,
-                                 hidden_sizes=[1, 1],
-                                 hidden_nonlinearity=F.relu)
-    replay_buffer = PathBuffer(capacity_in_transitions=int(1e6), )
+    qf2 = ContinuousMLPQFunction(env_spec=env.spec, hidden_sizes=[1, 1], hidden_nonlinearity=F.relu)
+    replay_buffer = PathBuffer(
+        capacity_in_transitions=int(1e6),
+    )
 
     buffer_batch_size = 2
-    mtsac = MTSAC(policy=policy,
-                  qf1=qf1,
-                  qf2=qf2,
-                  sampler=None,
-                  gradient_steps_per_itr=150,
-                  eval_env=[env],
-                  env_spec=env.spec,
-                  num_tasks=4,
-                  steps_per_epoch=5,
-                  replay_buffer=replay_buffer,
-                  min_buffer_size=1e3,
-                  target_update_tau=5e-3,
-                  discount=0.99,
-                  buffer_batch_size=buffer_batch_size)
-    monkeypatch.setattr(mtsac, '_log_alpha', torch.Tensor([1., 2.]))
-    error_string = ('The number of tasks in the environment does '
-                    'not match self._num_tasks. Are you sure that you passed '
-                    'The correct number of tasks?')
+    mtsac = MTSAC(
+        policy=policy,
+        qf1=qf1,
+        qf2=qf2,
+        sampler=None,
+        gradient_steps_per_itr=150,
+        eval_env=[env],
+        env_spec=env.spec,
+        num_tasks=4,
+        steps_per_epoch=5,
+        replay_buffer=replay_buffer,
+        min_buffer_size=1e3,
+        target_update_tau=5e-3,
+        discount=0.99,
+        buffer_batch_size=buffer_batch_size,
+    )
+    monkeypatch.setattr(mtsac, "_log_alpha", torch.Tensor([1.0, 2.0]))
+    error_string = (
+        "The number of tasks in the environment does "
+        "not match self._num_tasks. Are you sure that you passed "
+        "The correct number of tasks?"
+    )
     obs = torch.Tensor([env.reset()[0]] * buffer_batch_size)
     with pytest.raises(ValueError, match=error_string):
         mtsac._get_log_alpha(dict(observation=obs))
@@ -129,11 +131,10 @@ def test_mtsac_get_log_alpha_incorrect_num_tasks(monkeypatch):
 @pytest.mark.mujoco
 def test_mtsac_inverted_double_pendulum():
     """Performance regression test of MTSAC on 2 InvDoublePendulum envs."""
-    env_names = ['InvertedDoublePendulum-v2', 'InvertedDoublePendulum-v2']
+    env_names = ["InvertedDoublePendulum-v2", "InvertedDoublePendulum-v2"]
     task_envs = [GymEnv(name, max_episode_length=100) for name in env_names]
     env = MultiEnvWrapper(task_envs, sample_strategy=round_robin_strategy)
-    test_envs = MultiEnvWrapper(task_envs,
-                                sample_strategy=round_robin_strategy)
+    test_envs = MultiEnvWrapper(task_envs, sample_strategy=round_robin_strategy)
     deterministic.set_seed(0)
     trainer = Trainer(snapshot_config=snapshot_config)
     policy = TanhGaussianMLPPolicy(
@@ -141,38 +142,37 @@ def test_mtsac_inverted_double_pendulum():
         hidden_sizes=[32, 32],
         hidden_nonlinearity=torch.nn.ReLU,
         output_nonlinearity=None,
-        min_std=np.exp(-20.),
-        max_std=np.exp(2.),
+        min_std=np.exp(-20.0),
+        max_std=np.exp(2.0),
     )
 
-    qf1 = ContinuousMLPQFunction(env_spec=env.spec,
-                                 hidden_sizes=[32, 32],
-                                 hidden_nonlinearity=F.relu)
+    qf1 = ContinuousMLPQFunction(env_spec=env.spec, hidden_sizes=[32, 32], hidden_nonlinearity=F.relu)
 
-    qf2 = ContinuousMLPQFunction(env_spec=env.spec,
-                                 hidden_sizes=[32, 32],
-                                 hidden_nonlinearity=F.relu)
-    replay_buffer = PathBuffer(capacity_in_transitions=int(1e6), )
+    qf2 = ContinuousMLPQFunction(env_spec=env.spec, hidden_sizes=[32, 32], hidden_nonlinearity=F.relu)
+    replay_buffer = PathBuffer(
+        capacity_in_transitions=int(1e6),
+    )
     num_tasks = 2
     buffer_batch_size = 128
-    sampler = LocalSampler(agents=policy,
-                           envs=env,
-                           max_episode_length=env.spec.max_episode_length,
-                           worker_class=FragmentWorker)
-    mtsac = MTSAC(policy=policy,
-                  qf1=qf1,
-                  qf2=qf2,
-                  sampler=sampler,
-                  gradient_steps_per_itr=100,
-                  eval_env=[test_envs],
-                  env_spec=env.spec,
-                  num_tasks=num_tasks,
-                  steps_per_epoch=5,
-                  replay_buffer=replay_buffer,
-                  min_buffer_size=1e3,
-                  target_update_tau=5e-3,
-                  discount=0.99,
-                  buffer_batch_size=buffer_batch_size)
+    sampler = LocalSampler(
+        agents=policy, envs=env, max_episode_length=env.spec.max_episode_length, worker_class=FragmentWorker
+    )
+    mtsac = MTSAC(
+        policy=policy,
+        qf1=qf1,
+        qf2=qf2,
+        sampler=sampler,
+        gradient_steps_per_itr=100,
+        eval_env=[test_envs],
+        env_spec=env.spec,
+        num_tasks=num_tasks,
+        steps_per_epoch=5,
+        replay_buffer=replay_buffer,
+        min_buffer_size=1e3,
+        target_update_tau=5e-3,
+        discount=0.99,
+        buffer_batch_size=buffer_batch_size,
+    )
     trainer.setup(mtsac, env)
     ret = trainer.train(n_epochs=8, batch_size=128, plot=False)
     assert ret > 0
@@ -181,11 +181,11 @@ def test_mtsac_inverted_double_pendulum():
 def test_to():
     """Test the torch function that moves modules to GPU.
 
-        Test that the policy and qfunctions are moved to gpu if gpu is
-        available.
+    Test that the policy and qfunctions are moved to gpu if gpu is
+    available.
 
     """
-    env_names = ['CartPole-v0', 'CartPole-v1']
+    env_names = ["CartPole-v0", "CartPole-v1"]
     task_envs = [GymEnv(name, max_episode_length=100) for name in env_names]
     env = MultiEnvWrapper(task_envs, sample_strategy=round_robin_strategy)
     deterministic.set_seed(0)
@@ -194,35 +194,35 @@ def test_to():
         hidden_sizes=[1, 1],
         hidden_nonlinearity=torch.nn.ReLU,
         output_nonlinearity=None,
-        min_std=np.exp(-20.),
-        max_std=np.exp(2.),
+        min_std=np.exp(-20.0),
+        max_std=np.exp(2.0),
     )
 
-    qf1 = ContinuousMLPQFunction(env_spec=env.spec,
-                                 hidden_sizes=[1, 1],
-                                 hidden_nonlinearity=F.relu)
+    qf1 = ContinuousMLPQFunction(env_spec=env.spec, hidden_sizes=[1, 1], hidden_nonlinearity=F.relu)
 
-    qf2 = ContinuousMLPQFunction(env_spec=env.spec,
-                                 hidden_sizes=[1, 1],
-                                 hidden_nonlinearity=F.relu)
-    replay_buffer = PathBuffer(capacity_in_transitions=int(1e6), )
+    qf2 = ContinuousMLPQFunction(env_spec=env.spec, hidden_sizes=[1, 1], hidden_nonlinearity=F.relu)
+    replay_buffer = PathBuffer(
+        capacity_in_transitions=int(1e6),
+    )
 
     num_tasks = 2
     buffer_batch_size = 2
-    mtsac = MTSAC(policy=policy,
-                  qf1=qf1,
-                  qf2=qf2,
-                  sampler=None,
-                  gradient_steps_per_itr=150,
-                  eval_env=[env],
-                  env_spec=env.spec,
-                  num_tasks=num_tasks,
-                  steps_per_epoch=5,
-                  replay_buffer=replay_buffer,
-                  min_buffer_size=1e3,
-                  target_update_tau=5e-3,
-                  discount=0.99,
-                  buffer_batch_size=buffer_batch_size)
+    mtsac = MTSAC(
+        policy=policy,
+        qf1=qf1,
+        qf2=qf2,
+        sampler=None,
+        gradient_steps_per_itr=150,
+        eval_env=[env],
+        env_spec=env.spec,
+        num_tasks=num_tasks,
+        steps_per_epoch=5,
+        replay_buffer=replay_buffer,
+        min_buffer_size=1e3,
+        target_update_tau=5e-3,
+        discount=0.99,
+        buffer_batch_size=buffer_batch_size,
+    )
 
     set_gpu_mode(torch.cuda.is_available())
     mtsac.to()
@@ -241,11 +241,10 @@ def test_to():
 @pytest.mark.mujoco
 def test_fixed_alpha():
     """Test if using fixed_alpha ensures that alpha is non differentiable."""
-    env_names = ['InvertedDoublePendulum-v2', 'InvertedDoublePendulum-v2']
+    env_names = ["InvertedDoublePendulum-v2", "InvertedDoublePendulum-v2"]
     task_envs = [GymEnv(name, max_episode_length=100) for name in env_names]
     env = MultiEnvWrapper(task_envs, sample_strategy=round_robin_strategy)
-    test_envs = MultiEnvWrapper(task_envs,
-                                sample_strategy=round_robin_strategy)
+    test_envs = MultiEnvWrapper(task_envs, sample_strategy=round_robin_strategy)
     deterministic.set_seed(0)
     trainer = Trainer(snapshot_config=snapshot_config)
     policy = TanhGaussianMLPPolicy(
@@ -253,48 +252,45 @@ def test_fixed_alpha():
         hidden_sizes=[32, 32],
         hidden_nonlinearity=torch.nn.ReLU,
         output_nonlinearity=None,
-        min_std=np.exp(-20.),
-        max_std=np.exp(2.),
+        min_std=np.exp(-20.0),
+        max_std=np.exp(2.0),
     )
 
-    qf1 = ContinuousMLPQFunction(env_spec=env.spec,
-                                 hidden_sizes=[32, 32],
-                                 hidden_nonlinearity=F.relu)
+    qf1 = ContinuousMLPQFunction(env_spec=env.spec, hidden_sizes=[32, 32], hidden_nonlinearity=F.relu)
 
-    qf2 = ContinuousMLPQFunction(env_spec=env.spec,
-                                 hidden_sizes=[32, 32],
-                                 hidden_nonlinearity=F.relu)
-    replay_buffer = PathBuffer(capacity_in_transitions=int(1e6), )
+    qf2 = ContinuousMLPQFunction(env_spec=env.spec, hidden_sizes=[32, 32], hidden_nonlinearity=F.relu)
+    replay_buffer = PathBuffer(
+        capacity_in_transitions=int(1e6),
+    )
     num_tasks = 2
     buffer_batch_size = 128
-    sampler = LocalSampler(agents=policy,
-                           envs=env,
-                           max_episode_length=env.spec.max_episode_length,
-                           worker_class=FragmentWorker)
-    mtsac = MTSAC(policy=policy,
-                  qf1=qf1,
-                  qf2=qf2,
-                  sampler=sampler,
-                  gradient_steps_per_itr=100,
-                  eval_env=[test_envs],
-                  env_spec=env.spec,
-                  num_tasks=num_tasks,
-                  steps_per_epoch=1,
-                  replay_buffer=replay_buffer,
-                  min_buffer_size=1e3,
-                  target_update_tau=5e-3,
-                  discount=0.99,
-                  buffer_batch_size=buffer_batch_size,
-                  fixed_alpha=np.exp(0.5))
+    sampler = LocalSampler(
+        agents=policy, envs=env, max_episode_length=env.spec.max_episode_length, worker_class=FragmentWorker
+    )
+    mtsac = MTSAC(
+        policy=policy,
+        qf1=qf1,
+        qf2=qf2,
+        sampler=sampler,
+        gradient_steps_per_itr=100,
+        eval_env=[test_envs],
+        env_spec=env.spec,
+        num_tasks=num_tasks,
+        steps_per_epoch=1,
+        replay_buffer=replay_buffer,
+        min_buffer_size=1e3,
+        target_update_tau=5e-3,
+        discount=0.99,
+        buffer_batch_size=buffer_batch_size,
+        fixed_alpha=np.exp(0.5),
+    )
     if torch.cuda.is_available():
         set_gpu_mode(True)
     else:
         set_gpu_mode(False)
     mtsac.to()
-    assert torch.allclose(torch.Tensor([0.5] * num_tasks),
-                          mtsac._log_alpha.to('cpu'))
+    assert torch.allclose(torch.Tensor([0.5] * num_tasks), mtsac._log_alpha.to("cpu"))
     trainer.setup(mtsac, env)
     trainer.train(n_epochs=1, batch_size=128, plot=False)
-    assert torch.allclose(torch.Tensor([0.5] * num_tasks),
-                          mtsac._log_alpha.to('cpu'))
+    assert torch.allclose(torch.Tensor([0.5] * num_tasks), mtsac._log_alpha.to("cpu"))
     assert not mtsac._use_automatic_entropy_tuning

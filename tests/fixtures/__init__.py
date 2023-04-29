@@ -6,4 +6,4 @@ from tests.fixtures.fixtures import (snapshot_config,
 
 # yapf: enable
 
-__all__ = ['snapshot_config', 'TfGraphTestCase', 'TfTestCase']
+__all__ = ["snapshot_config", "TfGraphTestCase", "TfTestCase"]

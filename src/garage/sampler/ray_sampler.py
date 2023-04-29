@@ -35,7 +35,6 @@ class RaySampler(Sampler):
             param or params after this are required to construct a sampler.
         max_episode_length(int): Params used to construct a worker factory.
             The maximum length episodes which will be sampled.
-        is_tf_worker (bool): Whether it is workers for TFTrainer.
         seed(int): The seed to use to initialize random number generators.
         n_workers(int): The number of workers to use.
         worker_class(type): Class of the workers. Instances should implement
@@ -46,23 +45,22 @@ class RaySampler(Sampler):
     """
 
     def __init__(
-            self,
-            agents,
-            envs,
-            *,  # After this require passing by keyword.
-            worker_factory=None,
-            max_episode_length=None,
-            is_tf_worker=False,
-            seed=get_seed(),
-            n_workers=psutil.cpu_count(logical=False),
-            worker_class=DefaultWorker,
-            worker_args=None):
+        self,
+        agents,
+        envs,
+        *,  # After this require passing by keyword.
+        worker_factory=None,
+        max_episode_length=None,
+        seed=get_seed(),
+        n_workers=psutil.cpu_count(logical=False),
+        worker_class=DefaultWorker,
+        worker_args=None
+    ):
         # pylint: disable=super-init-not-called
         if not ray.is_initialized():
             ray.init(log_to_driver=False, ignore_reinit_error=True)
         if worker_factory is None and max_episode_length is None:
-            raise TypeError('Must construct a sampler from WorkerFactory or'
-                            'parameters (at least max_episode_length)')
+            raise TypeError("Must construct a sampler from WorkerFactory or" "parameters (at least max_episode_length)")
         if isinstance(worker_factory, WorkerFactory):
             self._worker_factory = worker_factory
         else:
@@ -72,7 +70,8 @@ class RaySampler(Sampler):
                 seed=seed,
                 n_workers=n_workers,
                 worker_class=worker_class,
-                worker_args=worker_args)
+                worker_args=worker_args,
+            )
         self._sampler_worker = ray.remote(SamplerWorker)
         self._agents = agents
         self._envs = self._worker_factory.prepare_worker_messages(envs)
@@ -112,12 +111,11 @@ class RaySampler(Sampler):
         self._workers_started = True
         # We need to pickle the agent so that we can e.g. set up the TF.Session
         # in the worker *before* unpickling it.
-        agent_pkls = self._worker_factory.prepare_worker_messages(
-            self._agents, cloudpickle.dumps)
+        agent_pkls = self._worker_factory.prepare_worker_messages(self._agents, cloudpickle.dumps)
         for worker_id in range(self._worker_factory.n_workers):
             self._all_workers[worker_id] = self._sampler_worker.remote(
-                worker_id, self._envs[worker_id], agent_pkls[worker_id],
-                self._worker_factory)
+                worker_id, self._envs[worker_id], agent_pkls[worker_id], self._worker_factory
+            )
 
     def _update_workers(self, agent_update, env_update):
         """Update all of the workers.
@@ -137,14 +135,11 @@ class RaySampler(Sampler):
 
         """
         updating_workers = []
-        param_ids = self._worker_factory.prepare_worker_messages(
-            agent_update, ray.put)
-        env_ids = self._worker_factory.prepare_worker_messages(
-            env_update, ray.put)
+        param_ids = self._worker_factory.prepare_worker_messages(agent_update, ray.put)
+        env_ids = self._worker_factory.prepare_worker_messages(env_update, ray.put)
         for worker_id in range(self._worker_factory.n_workers):
             worker = self._all_workers[worker_id]
-            updating_workers.append(
-                worker.update.remote(param_ids[worker_id], env_ids[worker_id]))
+            updating_workers.append(worker.update.remote(param_ids[worker_id], env_ids[worker_id]))
         return updating_workers
 
     def obtain_samples(self, itr, num_samples, agent_update, env_update=None):
@@ -175,16 +170,14 @@ class RaySampler(Sampler):
         idle_worker_ids = []
         updating_workers = self._update_workers(agent_update, env_update)
 
-        with click.progressbar(length=num_samples, label='Sampling') as pbar:
+        with click.progressbar(length=num_samples, label="Sampling") as pbar:
             while completed_samples < num_samples:
                 # if there are workers still being updated, check
                 # which ones are still updating and take the workers that
                 # are done updating, and start collecting episodes on those
                 # workers.
                 if updating_workers:
-                    updated, updating_workers = ray.wait(updating_workers,
-                                                         num_returns=1,
-                                                         timeout=0.1)
+                    updated, updating_workers = ray.wait(updating_workers, num_returns=1, timeout=0.1)
                     upd = [ray.get(up) for up in updated]
                     idle_worker_ids.extend(upd)
 
@@ -198,9 +191,7 @@ class RaySampler(Sampler):
                 # check which workers are done/not done collecting a sample
                 # if any are done, send them to process the collected
                 # episode if they are not, keep checking if they are done
-                ready, not_ready = ray.wait(active_workers,
-                                            num_returns=1,
-                                            timeout=0.001)
+                ready, not_ready = ray.wait(active_workers, num_returns=1, timeout=0.001)
                 active_workers = not_ready
                 for result in ready:
                     ready_worker_id, episode_batch = ray.get(result)
@@ -214,10 +205,7 @@ class RaySampler(Sampler):
         self.total_env_steps += sum(samples.lengths)
         return samples
 
-    def obtain_exact_episodes(self,
-                              n_eps_per_worker,
-                              agent_update,
-                              env_update=None):
+    def obtain_exact_episodes(self, n_eps_per_worker, agent_update, env_update=None):
         """Sample an exact number of episodes per worker.
 
         Args:
@@ -246,19 +234,14 @@ class RaySampler(Sampler):
         idle_worker_ids = []
         updating_workers = self._update_workers(agent_update, env_update)
 
-        with click.progressbar(length=self._worker_factory.n_workers,
-                               label='Sampling') as pbar:
-            while any(
-                    len(episodes[i]) < n_eps_per_worker
-                    for i in range(self._worker_factory.n_workers)):
+        with click.progressbar(length=self._worker_factory.n_workers, label="Sampling") as pbar:
+            while any(len(episodes[i]) < n_eps_per_worker for i in range(self._worker_factory.n_workers)):
                 # if there are workers still being updated, check
                 # which ones are still updating and take the workers that
                 # are done updating, and start collecting episodes on
                 # those workers.
                 if updating_workers:
-                    updated, updating_workers = ray.wait(updating_workers,
-                                                         num_returns=1,
-                                                         timeout=0.1)
+                    updated, updating_workers = ray.wait(updating_workers, num_returns=1, timeout=0.1)
                     upd = [ray.get(up) for up in updated]
                     idle_worker_ids.extend(upd)
 
@@ -272,9 +255,7 @@ class RaySampler(Sampler):
                 # check which workers are done/not done collecting a sample
                 # if any are done, send them to process the collected episode
                 # if they are not, keep checking if they are done
-                ready, not_ready = ray.wait(active_workers,
-                                            num_returns=1,
-                                            timeout=0.001)
+                ready, not_ready = ray.wait(active_workers, num_returns=1, timeout=0.001)
                 active_workers = not_ready
                 for result in ready:
                     ready_worker_id, episode_batch = ray.get(result)
@@ -285,9 +266,7 @@ class RaySampler(Sampler):
 
                     pbar.update(1)
 
-        ordered_episodes = list(
-            itertools.chain(
-                *[episodes[i] for i in range(self._worker_factory.n_workers)]))
+        ordered_episodes = list(itertools.chain(*[episodes[i] for i in range(self._worker_factory.n_workers)]))
 
         samples = EpisodeBatch.concatenate(*ordered_episodes)
         self.total_env_steps += sum(samples.lengths)
@@ -306,9 +285,7 @@ class RaySampler(Sampler):
             dict: The pickled state.
 
         """
-        return dict(factory=self._worker_factory,
-                    agents=self._agents,
-                    envs=self._envs)
+        return dict(factory=self._worker_factory, agents=self._agents, envs=self._envs)
 
     def __setstate__(self, state):
         """Unpickle the state.
@@ -317,9 +294,7 @@ class RaySampler(Sampler):
             state (dict): Unpickled state.
 
         """
-        self.__init__(state['agents'],
-                      state['envs'],
-                      worker_factory=state['factory'])
+        self.__init__(state["agents"], state["envs"], worker_factory=state["factory"])
 
 
 class SamplerWorker:

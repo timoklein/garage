@@ -29,7 +29,7 @@ class OptimalPolicy(Policy):
     # pylint: disable=abstract-method
 
     def __init__(self, env_spec, goal):
-        super().__init__(env_spec, 'OptimalPolicy')
+        super().__init__(env_spec, "OptimalPolicy")
         self.goal = goal
 
     def get_action(self, observation):
@@ -65,8 +65,7 @@ class OptimalPolicy(Policy):
                 * dict[str, np.ndarray]: Agent info (empty).
 
         """
-        return (self.goal[np.newaxis, :].repeat(len(observations), axis=0) -
-                observations[:, :2]), {}
+        return (self.goal[np.newaxis, :].repeat(len(observations), axis=0) - observations[:, :2]), {}
 
 
 def run_bc(trainer, algo, batch_size):
@@ -84,21 +83,13 @@ def test_bc_point_deterministic(ray_local_session_fixture):  # NOQA
     assert ray.is_initialized()
     deterministic.set_seed(100)
     trainer = Trainer(snapshot_config)
-    goal = np.array([1., 1.])
+    goal = np.array([1.0, 1.0])
     env = PointEnv(goal=goal, max_episode_length=200)
     expert = OptimalPolicy(env.spec, goal=goal)
     policy = DeterministicMLPPolicy(env.spec, hidden_sizes=[8, 8])
     batch_size = 600
-    sampler = LocalSampler(agents=expert,
-                           envs=env,
-                           max_episode_length=env.spec.max_episode_length)
-    algo = BC(env.spec,
-              policy,
-              batch_size=batch_size,
-              source=expert,
-              sampler=sampler,
-              policy_lr=1e-2,
-              loss='mse')
+    sampler = LocalSampler(agents=expert, envs=env, max_episode_length=env.spec.max_episode_length)
+    algo = BC(env.spec, policy, batch_size=batch_size, source=expert, sampler=sampler, policy_lr=1e-2, loss="mse")
     trainer.setup(algo, env)
     run_bc(trainer, algo, batch_size)
 
@@ -108,21 +99,13 @@ def test_bc_point(ray_local_session_fixture):  # NOQA
     assert ray.is_initialized()
     deterministic.set_seed(100)
     trainer = Trainer(snapshot_config)
-    goal = np.array([1., 1.])
+    goal = np.array([1.0, 1.0])
     env = PointEnv(goal=goal, max_episode_length=200)
     expert = OptimalPolicy(env.spec, goal=goal)
     policy = GaussianMLPPolicy(env.spec, [4])
     batch_size = 400
-    sampler = LocalSampler(agents=expert,
-                           envs=env,
-                           max_episode_length=env.spec.max_episode_length)
-    algo = BC(env.spec,
-              policy,
-              batch_size=batch_size,
-              source=expert,
-              sampler=sampler,
-              policy_lr=1e-2,
-              loss='log_prob')
+    sampler = LocalSampler(agents=expert, envs=env, max_episode_length=env.spec.max_episode_length)
+    algo = BC(env.spec, policy, batch_size=batch_size, source=expert, sampler=sampler, policy_lr=1e-2, loss="log_prob")
     trainer.setup(algo, env)
     run_bc(trainer, algo, batch_size)
 
@@ -139,17 +122,12 @@ def expert_source(env, goal, max_episode_length, n_eps):
 def test_bc_point_sample_batches():
     deterministic.set_seed(100)
     trainer = Trainer(snapshot_config)
-    goal = np.array([1., 1.])
+    goal = np.array([1.0, 1.0])
     env = PointEnv(goal=goal)
     max_episode_length = 100
     source = list(expert_source(env, goal, max_episode_length, 5))
     policy = DeterministicMLPPolicy(env.spec, hidden_sizes=[8, 8])
     batch_size = 600
-    algo = BC(env.spec,
-              policy,
-              batch_size=batch_size,
-              source=source,
-              policy_lr=1e-2,
-              loss='mse')
+    algo = BC(env.spec, policy, batch_size=batch_size, source=source, policy_lr=1e-2, loss="mse")
     trainer.setup(algo, env)
     run_bc(trainer, algo, batch_size)

@@ -19,12 +19,12 @@ class TestBenchmarkTanhNormalDistribution:
         mean = torch.ones(1) * 100
         std = torch.ones(1) * 100
         dist = TanhNormal(mean, std)
-        assert dist.mean <= 1.
+        assert dist.mean <= 1.0
         del dist
         mean = torch.ones(1) * -100
         std = torch.ones(1) * 100
         dist = TanhNormal(mean, std)
-        assert dist.mean >= -1.
+        assert dist.mean >= -1.0
 
     def test_tanh_normal_rsample(self):
         """Test the bounds of the tanh_normal rsample function."""
@@ -34,8 +34,8 @@ class TestBenchmarkTanhNormalDistribution:
         sample = dist.rsample()
         pre_tanh_action, action = dist.rsample_with_pre_tanh_value()
         assert (pre_tanh_action.tanh() == action).all()
-        assert -1 <= action <= 1.
-        assert -1 <= sample <= 1.
+        assert -1 <= action <= 1.0
+        assert -1 <= sample <= 1.0
         del dist
 
     def test_tanh_normal_log_prob(self):
@@ -61,7 +61,7 @@ class TestBenchmarkTanhNormalDistribution:
         mean = torch.zeros(1)
         std = torch.ones(1)
         dist = TanhNormal(mean, std)
-        new_dist = dist.expand((2, ))
+        new_dist = dist.expand((2,))
         sample = new_dist.sample()
         assert sample.shape == torch.Size((2, 1))
 
@@ -70,14 +70,14 @@ class TestBenchmarkTanhNormalDistribution:
         mean = torch.zeros(1)
         std = torch.ones(1)
         dist = TanhNormal(mean, std)
-        assert repr(dist) == 'TanhNormal'
+        assert repr(dist) == "TanhNormal"
 
     def test_tanh_normal_log_prob_of_clipped_action(self):
         """Verify that clipped actions still have a valid log probability."""
         mean = torch.zeros(2)
         std = torch.ones(2)
         dist = TanhNormal(mean, std)
-        action = torch.Tensor([[1., -1.]])
+        action = torch.Tensor([[1.0, -1.0]])
         log_prob_approx = dist.log_prob(action)
         assert torch.isfinite(log_prob_approx)
         assert log_prob_approx < -20

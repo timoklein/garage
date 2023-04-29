@@ -37,7 +37,6 @@ class LocalSampler(Sampler):
             construct a sampler.
         max_episode_length(int): Params used to construct a worker factory.
             The maximum length episodes which will be sampled.
-        is_tf_worker (bool): Whether it is workers for TFTrainer.
         seed(int): The seed to use to initialize random number generators.
         n_workers(int): The number of workers to use.
         worker_class(type): Class of the workers. Instances should implement
@@ -48,21 +47,20 @@ class LocalSampler(Sampler):
     """
 
     def __init__(
-            self,
-            agents,
-            envs,
-            *,  # After this require passing by keyword.
-            worker_factory=None,
-            max_episode_length=None,
-            is_tf_worker=False,
-            seed=get_seed(),
-            n_workers=psutil.cpu_count(logical=False),
-            worker_class=DefaultWorker,
-            worker_args=None):
+        self,
+        agents,
+        envs,
+        *,  # After this require passing by keyword.
+        worker_factory=None,
+        max_episode_length=None,
+        seed=get_seed(),
+        n_workers=psutil.cpu_count(logical=False),
+        worker_class=DefaultWorker,
+        worker_args=None
+    ):
         # pylint: disable=super-init-not-called
         if worker_factory is None and max_episode_length is None:
-            raise TypeError('Must construct a sampler from WorkerFactory or'
-                            'parameters (at least max_episode_length)')
+            raise TypeError("Must construct a sampler from WorkerFactory or" "parameters (at least max_episode_length)")
         if isinstance(worker_factory, WorkerFactory):
             self._factory = worker_factory
         else:
@@ -72,14 +70,12 @@ class LocalSampler(Sampler):
                 seed=seed,
                 n_workers=n_workers,
                 worker_class=worker_class,
-                worker_args=worker_args)
+                worker_args=worker_args,
+            )
 
         self._agents = self._factory.prepare_worker_messages(agents)
-        self._envs = self._factory.prepare_worker_messages(
-            envs, preprocess=copy.deepcopy)
-        self._workers = [
-            self._factory(i) for i in range(self._factory.n_workers)
-        ]
+        self._envs = self._factory.prepare_worker_messages(envs, preprocess=copy.deepcopy)
+        self._workers = [self._factory(i) for i in range(self._factory.n_workers)]
         for worker, agent, env in zip(self._workers, self._agents, self._envs):
             worker.update_agent(agent)
             worker.update_env(env)
@@ -124,10 +120,8 @@ class LocalSampler(Sampler):
 
         """
         agent_updates = self._factory.prepare_worker_messages(agent_update)
-        env_updates = self._factory.prepare_worker_messages(
-            env_update, preprocess=copy.deepcopy)
-        for worker, agent_up, env_up in zip(self._workers, agent_updates,
-                                            env_updates):
+        env_updates = self._factory.prepare_worker_messages(env_update, preprocess=copy.deepcopy)
+        for worker, agent_up, env_up in zip(self._workers, agent_updates, env_updates):
             worker.update_agent(agent_up)
             worker.update_env(env_up)
 
@@ -165,10 +159,7 @@ class LocalSampler(Sampler):
                     self.total_env_steps += sum(samples.lengths)
                     return samples
 
-    def obtain_exact_episodes(self,
-                              n_eps_per_worker,
-                              agent_update,
-                              env_update=None):
+    def obtain_exact_episodes(self, n_eps_per_worker, agent_update, env_update=None):
         """Sample an exact number of episodes per worker.
 
         Args:
@@ -213,7 +204,7 @@ class LocalSampler(Sampler):
         """
         state = self.__dict__.copy()
         # Workers aren't picklable (but WorkerFactory is).
-        state['_workers'] = None
+        state["_workers"] = None
         return state
 
     def __setstate__(self, state):
@@ -224,9 +215,7 @@ class LocalSampler(Sampler):
 
         """
         self.__dict__.update(state)
-        self._workers = [
-            self._factory(i) for i in range(self._factory.n_workers)
-        ]
+        self._workers = [self._factory(i) for i in range(self._factory.n_workers)]
         for worker, agent, env in zip(self._workers, self._agents, self._envs):
             worker.update_agent(agent)
             worker.update_env(env)

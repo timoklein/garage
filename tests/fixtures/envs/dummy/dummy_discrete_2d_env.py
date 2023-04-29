@@ -10,8 +10,7 @@ class DummyDiscrete2DEnv(DummyEnv):
     def __init__(self, random=True):
         super().__init__(random)
         self.shape = (2, 2)
-        self._observation_space = gym.spaces.Box(
-            low=-1, high=1, shape=self.shape, dtype=np.float32)
+        self._observation_space = gym.spaces.Box(low=-1, high=1, shape=self.shape, dtype=np.float32)
 
     @property
     def observation_space(self):
@@ -38,8 +37,7 @@ class DummyDiscrete2DEnv(DummyEnv):
             if self.random:
                 obs = self.observation_space.sample()
             else:
-                obs = self.state + action / 10.
+                obs = self.state + action / 10.0
         else:
-            raise RuntimeError(
-                "DummyEnv: reset() must be called before step()!")
+            raise RuntimeError("DummyEnv: reset() must be called before step()!")
         return obs, 0, True, dict()

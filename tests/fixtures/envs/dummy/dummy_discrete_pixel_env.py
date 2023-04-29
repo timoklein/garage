@@ -38,10 +38,7 @@ class DummyDiscretePixelEnv(DummyEnv):
         self.unwrapped.get_action_meanings = self._get_action_meanings
         self.unwrapped.ale = mock.Mock()
         self.unwrapped.ale.lives = self.get_lives
-        self._observation_space = akro.Box(low=0,
-                                           high=255,
-                                           shape=self._obs_dim,
-                                           dtype=np.uint8)
+        self._observation_space = akro.Box(low=0, high=255, shape=self._obs_dim, dtype=np.uint8)
         self.step_called = 0
         self._lives = None
         self._prev_action = None
@@ -69,8 +66,7 @@ class DummyDiscretePixelEnv(DummyEnv):
     @property
     def spec(self):
         """EnvSpec: the environment specification."""
-        return EnvSpec(observation_space=self.observation_space,
-                       action_space=self.action_space)
+        return EnvSpec(observation_space=self.observation_space, action_space=self.action_space)
 
     # pylint: disable=no-self-use
     def _get_action_meanings(self):
@@ -80,7 +76,7 @@ class DummyDiscretePixelEnv(DummyEnv):
             list[str]: Meaning of action, indices are aligned with actions.
 
         """
-        return ['NOOP', 'FIRE', 'SLEEP', 'EAT', 'PLAY']
+        return ["NOOP", "FIRE", "SLEEP", "EAT", "PLAY"]
 
     def get_lives(self):
         """Get number of lives.
@@ -133,21 +129,17 @@ class DummyDiscretePixelEnv(DummyEnv):
                 obs = np.full(self._obs_dim, 2, dtype=np.uint8)
             else:
                 if self.random:
-                    obs = np.random.uniform(low=0,
-                                            high=256,
-                                            size=self._obs_dim).astype(
-                                                np.uint8)
+                    obs = np.random.uniform(low=0, high=256, size=self._obs_dim).astype(np.uint8)
                 else:
                     obs = self.state + action
             if self._lives == 0:
-                raise RuntimeError('DummyEnv: Cannot step when lives = 0!')
+                raise RuntimeError("DummyEnv: Cannot step when lives = 0!")
             self._lives -= 1
             if self._lives == 0:
                 done = True
         else:
-            raise RuntimeError(
-                'DummyEnv: reset() must be called before step()!')
+            raise RuntimeError("DummyEnv: reset() must be called before step()!")
         self.step_called += 1
         self._prev_action = action
 
-        return obs, 0, done, {'ale.lives': self._lives}
+        return obs, 0, done, {"ale.lives": self._lives}

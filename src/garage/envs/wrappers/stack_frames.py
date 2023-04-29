@@ -15,8 +15,7 @@ class StackFrames(gym.Wrapper):
     Args:
         env (gym.Env): gym.Env to wrap.
         n_frames (int): number of frames to stack.
-        axis (int): Axis to stack frames on. This should be 2 for tensorflow
-            and 0 for pytorch.
+        axis (int): Axis to stack frames on. This should be 0 for pytorch.
 
     Raises:
          ValueError: If observation space shape is not 2 dimnesional,
@@ -26,17 +25,14 @@ class StackFrames(gym.Wrapper):
 
     """
 
-    def __init__(self, env, n_frames, axis=2):
-        if axis not in (0, 2):
-            raise ValueError('Frame stacking axis should be 0 for pytorch or '
-                             '2 for tensorflow.')
+    def __init__(self, env, n_frames, axis=0):
+        if axis not in 0:
+            raise ValueError("Frame stacking axis should be 0 for pytorch or.")
         if not isinstance(env.observation_space, gym.spaces.Box):
-            raise ValueError('Stack frames only works with gym.spaces.Box '
-                             'environment.')
+            raise ValueError("Stack frames only works with gym.spaces.Box " "environment.")
 
         if len(env.observation_space.shape) != 2:
-            raise ValueError(
-                'Stack frames only works with 2D single channel images')
+            raise ValueError("Stack frames only works with 2D single channel images")
 
         super().__init__(env)
 
@@ -44,17 +40,13 @@ class StackFrames(gym.Wrapper):
         self._axis = axis
         self._frames = deque(maxlen=n_frames)
 
-        new_obs_space_shape = env.observation_space.shape + (n_frames, )
+        new_obs_space_shape = env.observation_space.shape + (n_frames,)
         if axis == 0:
-            new_obs_space_shape = (n_frames, ) + env.observation_space.shape
+            new_obs_space_shape = (n_frames,) + env.observation_space.shape
 
         _low = env.observation_space.low.flatten()[0]
         _high = env.observation_space.high.flatten()[0]
-        self._observation_space = gym.spaces.Box(
-            _low,
-            _high,
-            shape=new_obs_space_shape,
-            dtype=env.observation_space.dtype)
+        self._observation_space = gym.spaces.Box(_low, _high, shape=new_obs_space_shape, dtype=env.observation_space.dtype)
 
     @property
     def observation_space(self):

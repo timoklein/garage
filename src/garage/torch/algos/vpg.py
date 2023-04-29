@@ -70,7 +70,7 @@ class VPG(RLAlgorithm):
         policy_ent_coeff=0.0,
         use_softplus_entropy=False,
         stop_entropy_gradient=False,
-        entropy_method='no_entropy',
+        entropy_method="no_entropy",
     ):
         self._discount = discount
         self.policy = policy
@@ -87,11 +87,9 @@ class VPG(RLAlgorithm):
         self._n_samples = num_train_per_epoch
         self._env_spec = env_spec
 
-        self._maximum_entropy = (entropy_method == 'max')
-        self._entropy_regularzied = (entropy_method == 'regularized')
-        self._check_entropy_configuration(entropy_method, center_adv,
-                                          stop_entropy_gradient,
-                                          policy_ent_coeff)
+        self._maximum_entropy = entropy_method == "max"
+        self._entropy_regularzied = entropy_method == "regularized"
+        self._check_entropy_configuration(entropy_method, center_adv, stop_entropy_gradient, policy_ent_coeff)
         self._episode_reward_mean = collections.deque(maxlen=100)
         self._sampler = sampler
 
@@ -102,28 +100,23 @@ class VPG(RLAlgorithm):
         if vf_optimizer:
             self._vf_optimizer = vf_optimizer
         else:
-            self._vf_optimizer = OptimizerWrapper(torch.optim.Adam,
-                                                  value_function)
+            self._vf_optimizer = OptimizerWrapper(torch.optim.Adam, value_function)
 
         self._old_policy = copy.deepcopy(self.policy)
 
     @staticmethod
-    def _check_entropy_configuration(entropy_method, center_adv,
-                                     stop_entropy_gradient, policy_ent_coeff):
-        if entropy_method not in ('max', 'regularized', 'no_entropy'):
-            raise ValueError('Invalid entropy_method')
+    def _check_entropy_configuration(entropy_method, center_adv, stop_entropy_gradient, policy_ent_coeff):
+        if entropy_method not in ("max", "regularized", "no_entropy"):
+            raise ValueError("Invalid entropy_method")
 
-        if entropy_method == 'max':
+        if entropy_method == "max":
             if center_adv:
-                raise ValueError('center_adv should be False when '
-                                 'entropy_method is max')
+                raise ValueError("center_adv should be False when " "entropy_method is max")
             if not stop_entropy_gradient:
-                raise ValueError('stop_gradient should be True when '
-                                 'entropy_method is max')
-        if entropy_method == 'no_entropy':
+                raise ValueError("stop_gradient should be True when " "entropy_method is max")
+        if entropy_method == "no_entropy":
             if policy_ent_coeff != 0.0:
-                raise ValueError('policy_ent_coeff should be zero '
-                                 'when there is no entropy method')
+                raise ValueError("policy_ent_coeff should be zero " "when there is no entropy method")
 
     @property
     def discount(self):
@@ -147,11 +140,7 @@ class VPG(RLAlgorithm):
         """
         obs = np_to_torch(eps.padded_observations)
         rewards = np_to_torch(eps.padded_rewards)
-        returns = np_to_torch(
-            np.stack([
-                discount_cumsum(reward, self.discount)
-                for reward in eps.padded_rewards
-            ]))
+        returns = np_to_torch(np.stack([discount_cumsum(reward, self.discount) for reward in eps.padded_rewards]))
         valids = eps.lengths
         with torch.no_grad():
             baselines = self._value_function(obs)
@@ -167,43 +156,34 @@ class VPG(RLAlgorithm):
         advs_flat = self._compute_advantage(rewards, valids, baselines)
 
         with torch.no_grad():
-            policy_loss_before = self._compute_loss_with_adv(
-                obs_flat, actions_flat, rewards_flat, advs_flat)
-            vf_loss_before = self._value_function.compute_loss(
-                obs_flat, returns_flat)
+            policy_loss_before = self._compute_loss_with_adv(obs_flat, actions_flat, rewards_flat, advs_flat)
+            vf_loss_before = self._value_function.compute_loss(obs_flat, returns_flat)
             kl_before = self._compute_kl_constraint(obs)
 
-        self._train(obs_flat, actions_flat, rewards_flat, returns_flat,
-                    advs_flat)
+        self._train(obs_flat, actions_flat, rewards_flat, returns_flat, advs_flat)
 
         with torch.no_grad():
-            policy_loss_after = self._compute_loss_with_adv(
-                obs_flat, actions_flat, rewards_flat, advs_flat)
-            vf_loss_after = self._value_function.compute_loss(
-                obs_flat, returns_flat)
+            policy_loss_after = self._compute_loss_with_adv(obs_flat, actions_flat, rewards_flat, advs_flat)
+            vf_loss_after = self._value_function.compute_loss(obs_flat, returns_flat)
             kl_after = self._compute_kl_constraint(obs)
             policy_entropy = self._compute_policy_entropy(obs)
 
         with tabular.prefix(self.policy.name):
-            tabular.record('/LossBefore', policy_loss_before.item())
-            tabular.record('/LossAfter', policy_loss_after.item())
-            tabular.record('/dLoss',
-                           (policy_loss_before - policy_loss_after).item())
-            tabular.record('/KLBefore', kl_before.item())
-            tabular.record('/KL', kl_after.item())
-            tabular.record('/Entropy', policy_entropy.mean().item())
+            tabular.record("/LossBefore", policy_loss_before.item())
+            tabular.record("/LossAfter", policy_loss_after.item())
+            tabular.record("/dLoss", (policy_loss_before - policy_loss_after).item())
+            tabular.record("/KLBefore", kl_before.item())
+            tabular.record("/KL", kl_after.item())
+            tabular.record("/Entropy", policy_entropy.mean().item())
 
         with tabular.prefix(self._value_function.name):
-            tabular.record('/LossBefore', vf_loss_before.item())
-            tabular.record('/LossAfter', vf_loss_after.item())
-            tabular.record('/dLoss',
-                           vf_loss_before.item() - vf_loss_after.item())
+            tabular.record("/LossBefore", vf_loss_before.item())
+            tabular.record("/LossAfter", vf_loss_after.item())
+            tabular.record("/dLoss", vf_loss_before.item() - vf_loss_after.item())
 
         self._old_policy.load_state_dict(self.policy.state_dict())
 
-        undiscounted_returns = log_performance(itr,
-                                               eps,
-                                               discount=self._discount)
+        undiscounted_returns = log_performance(itr, eps, discount=self._discount)
         return np.mean(undiscounted_returns)
 
     def train(self, trainer):
@@ -242,8 +222,7 @@ class VPG(RLAlgorithm):
                 :math:`(N, )`.
 
         """
-        for dataset in self._policy_optimizer.get_minibatch(
-                obs, actions, rewards, advs):
+        for dataset in self._policy_optimizer.get_minibatch(obs, actions, rewards, advs):
             self._train_policy(*dataset)
         for dataset in self._vf_optimizer.get_minibatch(obs, returns):
             self._train_value_function(*dataset)
@@ -321,8 +300,7 @@ class VPG(RLAlgorithm):
         rewards_flat = torch.cat(filter_valids(rewards, valids))
         advantages_flat = self._compute_advantage(rewards, valids, baselines)
 
-        return self._compute_loss_with_adv(obs_flat, actions_flat,
-                                           rewards_flat, advantages_flat)
+        return self._compute_loss_with_adv(obs_flat, actions_flat, rewards_flat, advantages_flat)
 
     def _compute_loss_with_adv(self, obs, actions, rewards, advantages):
         r"""Compute mean value of loss.
@@ -366,9 +344,7 @@ class VPG(RLAlgorithm):
                 baselines with shape :math:`(N \dot [T], )`.
 
         """
-        advantages = compute_advantages(self._discount, self._gae_lambda,
-                                        self.max_episode_length, baselines,
-                                        rewards)
+        advantages = compute_advantages(self._discount, self._gae_lambda, self.max_episode_length, baselines, rewards)
         advantage_flat = torch.cat(filter_valids(advantages, valids))
 
         if self._center_adv:
@@ -403,8 +379,7 @@ class VPG(RLAlgorithm):
 
         new_dist = self.policy(obs)[0]
 
-        kl_constraint = torch.distributions.kl.kl_divergence(
-            old_dist, new_dist)
+        kl_constraint = torch.distributions.kl.kl_divergence(old_dist, new_dist)
 
         return kl_constraint.mean()
 

@@ -10,12 +10,12 @@ from garage.envs.task_name_wrapper import TaskNameWrapper
 from garage.envs.task_onehot_wrapper import TaskOnehotWrapper
 
 __all__ = [
-    'GymEnv',
-    'GridWorldEnv',
-    'MetaWorldSetTaskEnv',
-    'MultiEnvWrapper',
-    'normalize',
-    'PointEnv',
-    'TaskOnehotWrapper',
-    'TaskNameWrapper',
+    "GymEnv",
+    "GridWorldEnv",
+    "MetaWorldSetTaskEnv",
+    "MultiEnvWrapper",
+    "normalize",
+    "PointEnv",
+    "TaskOnehotWrapper",
+    "TaskNameWrapper",
 ]

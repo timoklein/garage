@@ -41,9 +41,7 @@ class SimpleVPG:
         """
         for epoch in trainer.step_epochs():
             samples = trainer.obtain_samples(epoch)
-            log_performance(epoch,
-                            EpisodeBatch.from_list(self.env_spec, samples),
-                            self._discount)
+            log_performance(epoch, EpisodeBatch.from_list(self.env_spec, samples), self._discount)
             self._train_once(samples)
 
     def _train_once(self, samples):
@@ -59,10 +57,10 @@ class SimpleVPG:
         losses = []
         self._policy_opt.zero_grad()
         for path in samples:
-            returns_numpy = discount_cumsum(path['rewards'], self._discount)
+            returns_numpy = discount_cumsum(path["rewards"], self._discount)
             returns = torch.Tensor(returns_numpy.copy())
-            obs = torch.Tensor(path['observations'])
-            actions = torch.Tensor(path['actions'])
+            obs = torch.Tensor(path["observations"])
+            actions = torch.Tensor(path["actions"])
             dist = self.policy(obs)[0]
             log_likelihoods = dist.log_prob(actions)
             loss = (-log_likelihoods * returns).mean()
@@ -85,9 +83,7 @@ def tutorial_vpg(ctxt=None):
     trainer = Trainer(ctxt)
     env = PointEnv()
     policy = GaussianMLPPolicy(env.spec)
-    sampler = LocalSampler(agents=policy,
-                           envs=env,
-                           max_episode_length=env.spec.max_episode_length)
+    sampler = LocalSampler(agents=policy, envs=env, max_episode_length=env.spec.max_episode_length)
     algo = SimpleVPG(env.spec, policy, sampler)
     trainer.setup(algo, env)
     trainer.train(n_epochs=200, batch_size=4000)

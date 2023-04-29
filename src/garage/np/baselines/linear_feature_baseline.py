@@ -14,7 +14,7 @@ class LinearFeatureBaseline(Baseline):
 
     """
 
-    def __init__(self, env_spec, reg_coeff=1e-5, name='LinearFeatureBaseline'):
+    def __init__(self, env_spec, reg_coeff=1e-5, name="LinearFeatureBaseline"):
         del env_spec
         self._coeffs = None
         self._reg_coeff = reg_coeff
@@ -50,12 +50,10 @@ class LinearFeatureBaseline(Baseline):
             numpy.ndarray: Extracted features.
 
         """
-        obs = np.clip(path['observations'], self.lower_bound, self.upper_bound)
-        length = len(path['observations'])
+        obs = np.clip(path["observations"], self.lower_bound, self.upper_bound)
+        length = len(path["observations"])
         al = np.arange(length).reshape(-1, 1) / 100.0
-        return np.concatenate(
-            [obs, obs**2, al, al**2, al**3,
-             np.ones((length, 1))], axis=1)
+        return np.concatenate([obs, obs**2, al, al**2, al**3, np.ones((length, 1))], axis=1)
 
     # pylint: disable=unsubscriptable-object
     def fit(self, paths):
@@ -66,14 +64,12 @@ class LinearFeatureBaseline(Baseline):
 
         """
         featmat = np.concatenate([self._features(path) for path in paths])
-        returns = np.concatenate([path['returns'] for path in paths])
+        returns = np.concatenate([path["returns"] for path in paths])
         reg_coeff = self._reg_coeff
         for _ in range(5):
             self._coeffs = np.linalg.lstsq(
-                featmat.T.dot(featmat) +
-                reg_coeff * np.identity(featmat.shape[1]),
-                featmat.T.dot(returns),
-                rcond=-1)[0]
+                featmat.T.dot(featmat) + reg_coeff * np.identity(featmat.shape[1]), featmat.T.dot(returns), rcond=-1
+            )[0]
             if not np.any(np.isnan(self._coeffs)):
                 break
             reg_coeff *= 10
@@ -89,5 +85,5 @@ class LinearFeatureBaseline(Baseline):
 
         """
         if self._coeffs is None:
-            return np.zeros(len(paths['observations']))
+            return np.zeros(len(paths["observations"]))
         return self._features(paths).dot(self._coeffs)

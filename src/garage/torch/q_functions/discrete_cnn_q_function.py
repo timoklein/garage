@@ -68,34 +68,35 @@ class DiscreteCNNQFunction(nn.Module):
         layer_normalization (bool): Bool for using layer normalization or not.
     """
 
-    def __init__(self,
-                 env_spec,
-                 image_format,
-                 *,
-                 kernel_sizes,
-                 hidden_channels,
-                 strides,
-                 hidden_sizes=(32, 32),
-                 cnn_hidden_nonlinearity=torch.nn.ReLU,
-                 mlp_hidden_nonlinearity=torch.nn.ReLU,
-                 hidden_w_init=nn.init.xavier_uniform_,
-                 hidden_b_init=nn.init.zeros_,
-                 paddings=0,
-                 padding_mode='zeros',
-                 max_pool=False,
-                 pool_shape=None,
-                 pool_stride=1,
-                 output_nonlinearity=None,
-                 output_w_init=nn.init.xavier_uniform_,
-                 output_b_init=nn.init.zeros_,
-                 layer_normalization=False):
+    def __init__(
+        self,
+        env_spec,
+        image_format,
+        *,
+        kernel_sizes,
+        hidden_channels,
+        strides,
+        hidden_sizes=(32, 32),
+        cnn_hidden_nonlinearity=torch.nn.ReLU,
+        mlp_hidden_nonlinearity=torch.nn.ReLU,
+        hidden_w_init=nn.init.xavier_uniform_,
+        hidden_b_init=nn.init.zeros_,
+        paddings=0,
+        padding_mode="zeros",
+        max_pool=False,
+        pool_shape=None,
+        pool_stride=1,
+        output_nonlinearity=None,
+        output_w_init=nn.init.xavier_uniform_,
+        output_b_init=nn.init.zeros_,
+        layer_normalization=False
+    ):
         super().__init__()
 
         self._env_spec = env_spec
 
         self._cnn_module = DiscreteCNNModule(
-            spec=InOutSpec(input_space=env_spec.observation_space,
-                           output_space=env_spec.action_space),
+            spec=InOutSpec(input_space=env_spec.observation_space, output_space=env_spec.action_space),
             image_format=image_format,
             kernel_sizes=kernel_sizes,
             hidden_channels=hidden_channels,
@@ -113,7 +114,8 @@ class DiscreteCNNQFunction(nn.Module):
             output_nonlinearity=output_nonlinearity,
             output_w_init=output_w_init,
             output_b_init=output_b_init,
-            layer_normalization=layer_normalization)
+            layer_normalization=layer_normalization,
+        )
 
     # pylint: disable=arguments-differ
     def forward(self, observations):
@@ -126,6 +128,5 @@ class DiscreteCNNQFunction(nn.Module):
             torch.Tensor: Output value
         """
         # We're given flattened observations.
-        observations = observations.reshape(
-            -1, *self._env_spec.observation_space.shape)
+        observations = observations.reshape(-1, *self._env_spec.observation_space.shape)
         return self._cnn_module(observations)

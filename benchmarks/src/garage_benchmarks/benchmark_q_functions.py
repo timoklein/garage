@@ -11,6 +11,4 @@ _seeds = random.sample(range(100), 5)
 @benchmark
 def continuous_mlp_q_function_tf_ddpg_benchmarks():
     """Run benchmarking experiments for Continuous MLP QFunction on TF-DDPG."""
-    iterate_experiments(continuous_mlp_q_function,
-                        MuJoCo1M_ENV_SET,
-                        seeds=_seeds)
+    iterate_experiments(continuous_mlp_q_function, MuJoCo1M_ENV_SET, seeds=_seeds)

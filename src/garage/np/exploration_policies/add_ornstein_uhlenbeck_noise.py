@@ -34,15 +34,7 @@ class AddOrnsteinUhlenbeckNoise(ExplorationPolicy):
 
     """
 
-    def __init__(self,
-                 env_spec,
-                 policy,
-                 *,
-                 mu=0,
-                 sigma=0.3,
-                 theta=0.15,
-                 dt=1e-2,
-                 x0=None):
+    def __init__(self, env_spec, policy, *, mu=0, sigma=0.3, theta=0.15, dt=1e-2, x0=None):
         super().__init__(policy)
         self._env_spec = env_spec
         self._action_space = env_spec.action_space
@@ -51,8 +43,7 @@ class AddOrnsteinUhlenbeckNoise(ExplorationPolicy):
         self._sigma = sigma
         self._theta = theta
         self._dt = dt
-        self._x0 = x0 if x0 is not None else self._mu * np.zeros(
-            self._action_dim)
+        self._x0 = x0 if x0 is not None else self._mu * np.zeros(self._action_dim)
         self._state = self._x0
 
     def _simulate(self):
@@ -63,8 +54,7 @@ class AddOrnsteinUhlenbeckNoise(ExplorationPolicy):
 
         """
         x = self._state
-        dx = self._theta * (self._mu - x) * self._dt + self._sigma * np.sqrt(
-            self._dt) * np.random.normal(size=len(x))
+        dx = self._theta * (self._mu - x) * self._dt + self._sigma * np.sqrt(self._dt) * np.random.normal(size=len(x))
         self._state = x + dx
         return self._state
 
@@ -92,8 +82,7 @@ class AddOrnsteinUhlenbeckNoise(ExplorationPolicy):
         """
         action, agent_infos = self.policy.get_action(observation)
         ou_state = self._simulate()
-        return np.clip(action + ou_state, self._action_space.low,
-                       self._action_space.high), agent_infos
+        return np.clip(action + ou_state, self._action_space.low, self._action_space.high), agent_infos
 
     def get_actions(self, observations):
         """Return actions with noise.
@@ -108,5 +97,4 @@ class AddOrnsteinUhlenbeckNoise(ExplorationPolicy):
         """
         actions, agent_infos = self.policy.get_actions(observations)
         ou_state = self._simulate()
-        return np.clip(actions + ou_state, self._action_space.low,
-                       self._action_space.high), agent_infos
+        return np.clip(actions + ou_state, self._action_space.low, self._action_space.high), agent_infos

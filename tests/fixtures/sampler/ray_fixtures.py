@@ -3,7 +3,7 @@ import pytest
 import ray
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def ray_local_session_fixture():
     """Initializes Ray and shuts down Ray in local mode.
 
@@ -14,16 +14,13 @@ def ray_local_session_fixture():
 
     """
     if not ray.is_initialized():
-        ray.init(local_mode=True,
-                 ignore_reinit_error=True,
-                 log_to_driver=False,
-                 include_dashboard=False)
+        ray.init(local_mode=True, ignore_reinit_error=True, log_to_driver=False, include_dashboard=False)
     yield
     if ray.is_initialized():
         ray.shutdown()
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def ray_session_fixture():
     """Initializes Ray and shuts down Ray.
 
@@ -34,11 +31,13 @@ def ray_session_fixture():
 
     """
     if not ray.is_initialized():
-        ray.init(_memory=52428800,
-                 object_store_memory=78643200,
-                 ignore_reinit_error=True,
-                 log_to_driver=False,
-                 include_dashboard=False)
+        ray.init(
+            _memory=52428800,
+            object_store_memory=78643200,
+            ignore_reinit_error=True,
+            log_to_driver=False,
+            include_dashboard=False,
+        )
     yield
     if ray.is_initialized():
         ray.shutdown()

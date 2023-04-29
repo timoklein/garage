@@ -31,11 +31,10 @@ class Grayscale(gym.Wrapper):
 
     def __init__(self, env):
         if not isinstance(env.observation_space, gym.spaces.Box):
-            raise ValueError(
-                'Grayscale only works with gym.spaces.Box environment.')
+            raise ValueError("Grayscale only works with gym.spaces.Box environment.")
 
         if len(env.observation_space.shape) != 3:
-            raise ValueError('Grayscale only works with 2D RGB images')
+            raise ValueError("Grayscale only works with 2D RGB images")
 
         super().__init__(env)
 
@@ -43,11 +42,7 @@ class Grayscale(gym.Wrapper):
         _high = env.observation_space.high.flatten()[0]
         assert _low == 0
         assert _high == 255
-        self._observation_space = gym.spaces.Box(
-            _low,
-            _high,
-            shape=env.observation_space.shape[:-1],
-            dtype=np.uint8)
+        self._observation_space = gym.spaces.Box(_low, _high, shape=env.observation_space.shape[:-1], dtype=np.uint8)
 
     @property
     def observation_space(self):
@@ -100,5 +95,5 @@ def _color_to_grayscale(obs):
     with warnings.catch_warnings():
         # Suppressing warning for possible precision loss when converting
         # from float64 to uint8
-        warnings.simplefilter('ignore')
+        warnings.simplefilter("ignore")
         return img_as_ubyte(color.rgb2gray((obs)))

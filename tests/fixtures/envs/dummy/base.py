@@ -12,7 +12,7 @@ class DummyEnv(gym.Env):
 
     """
 
-    def __init__(self, random, obs_dim=(4, ), action_dim=(2, )):
+    def __init__(self, random, obs_dim=(4,), action_dim=(2,)):
         self.random = random
         self.state = None
         self._obs_dim = obs_dim
@@ -41,7 +41,7 @@ class DummyEnv(gym.Env):
         """
         raise NotImplementedError
 
-    def render(self, mode='human'):
+    def render(self, mode="human"):
         """Render.
 
         Args:

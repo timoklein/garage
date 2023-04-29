@@ -34,11 +34,12 @@ class PixelObservationWrapper(gym.Wrapper):
             # a mujoco license everytime the wrappers package is
             # accessed.
             from mujoco_py import GlfwContext
+
             GlfwContext(offscreen=True)
         env.reset()
         env = gymWrapper(env)
         super().__init__(env)
-        self._observation_space = env.observation_space['pixels']
+        self._observation_space = env.observation_space["pixels"]
 
     @property
     def observation_space(self):
@@ -59,7 +60,7 @@ class PixelObservationWrapper(gym.Wrapper):
             np.ndarray: Pixel observation of shape :math:`(O*, )`
                 from the wrapped environment.
         """
-        return self.env.reset(**kwargs)['pixels']
+        return self.env.reset(**kwargs)["pixels"]
 
     def step(self, action):
         """gym.Env step function.
@@ -80,4 +81,4 @@ class PixelObservationWrapper(gym.Wrapper):
                 debugging, and sometimes learning).
         """
         obs, reward, done, info = self.env.step(action)
-        return obs['pixels'], reward, done, info
+        return obs["pixels"], reward, done, info

@@ -3,8 +3,7 @@ import torch
 
 from garage.torch._functions import zero_optim_grads
 from garage.torch.algos import VPG
-from garage.torch.optimizers import (ConjugateGradientOptimizer,
-                                     OptimizerWrapper)
+from garage.torch.optimizers import ConjugateGradientOptimizer, OptimizerWrapper
 
 
 class TRPO(VPG):
@@ -44,49 +43,48 @@ class TRPO(VPG):
 
     """
 
-    def __init__(self,
-                 env_spec,
-                 policy,
-                 value_function,
-                 sampler,
-                 policy_optimizer=None,
-                 vf_optimizer=None,
-                 num_train_per_epoch=1,
-                 discount=0.99,
-                 gae_lambda=0.98,
-                 center_adv=True,
-                 positive_adv=False,
-                 policy_ent_coeff=0.0,
-                 use_softplus_entropy=False,
-                 stop_entropy_gradient=False,
-                 entropy_method='no_entropy'):
-
+    def __init__(
+        self,
+        env_spec,
+        policy,
+        value_function,
+        sampler,
+        policy_optimizer=None,
+        vf_optimizer=None,
+        num_train_per_epoch=1,
+        discount=0.99,
+        gae_lambda=0.98,
+        center_adv=True,
+        positive_adv=False,
+        policy_ent_coeff=0.0,
+        use_softplus_entropy=False,
+        stop_entropy_gradient=False,
+        entropy_method="no_entropy",
+    ):
         if policy_optimizer is None:
-            policy_optimizer = OptimizerWrapper(
-                (ConjugateGradientOptimizer, dict(max_constraint_value=0.01)),
-                policy)
+            policy_optimizer = OptimizerWrapper((ConjugateGradientOptimizer, dict(max_constraint_value=0.01)), policy)
         if vf_optimizer is None:
             vf_optimizer = OptimizerWrapper(
-                (torch.optim.Adam, dict(lr=2.5e-4)),
-                value_function,
-                max_optimization_epochs=10,
-                minibatch_size=64)
+                (torch.optim.Adam, dict(lr=2.5e-4)), value_function, max_optimization_epochs=10, minibatch_size=64
+            )
 
-        super().__init__(env_spec=env_spec,
-                         policy=policy,
-                         value_function=value_function,
-                         sampler=sampler,
-                         policy_optimizer=policy_optimizer,
-                         vf_optimizer=vf_optimizer,
-                         num_train_per_epoch=num_train_per_epoch,
-                         discount=discount,
-                         gae_lambda=gae_lambda,
-                         center_adv=center_adv,
-                         positive_adv=positive_adv,
-                         policy_ent_coeff=policy_ent_coeff,
-                         use_softplus_entropy=use_softplus_entropy,
-                         stop_entropy_gradient=stop_entropy_gradient,
-                         entropy_method=entropy_method)
+        super().__init__(
+            env_spec=env_spec,
+            policy=policy,
+            value_function=value_function,
+            sampler=sampler,
+            policy_optimizer=policy_optimizer,
+            vf_optimizer=vf_optimizer,
+            num_train_per_epoch=num_train_per_epoch,
+            discount=discount,
+            gae_lambda=gae_lambda,
+            center_adv=center_adv,
+            positive_adv=positive_adv,
+            policy_ent_coeff=policy_ent_coeff,
+            use_softplus_entropy=use_softplus_entropy,
+            stop_entropy_gradient=stop_entropy_gradient,
+            entropy_method=entropy_method,
+        )
 
     def _compute_objective(self, advantages, obs, actions, rewards):
         r"""Compute objective value.
@@ -139,8 +137,8 @@ class TRPO(VPG):
         loss = self._compute_loss_with_adv(obs, actions, rewards, advantages)
         loss.backward()
         self._policy_optimizer.step(
-            f_loss=lambda: self._compute_loss_with_adv(obs, actions, rewards,
-                                                       advantages),
-            f_constraint=lambda: self._compute_kl_constraint(obs))
+            f_loss=lambda: self._compute_loss_with_adv(obs, actions, rewards, advantages),
+            f_constraint=lambda: self._compute_kl_constraint(obs),
+        )
 
         return loss

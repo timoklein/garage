@@ -2,4 +2,4 @@
 
 from garage.torch.embeddings.mlp_encoder import MLPEncoder
 
-__all__ = ['MLPEncoder']
+__all__ = ["MLPEncoder"]

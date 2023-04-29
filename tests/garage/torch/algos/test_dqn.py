@@ -29,37 +29,35 @@ def setup():
     steps_per_epoch = 10
     sampler_batch_size = 512
     num_timesteps = 100 * steps_per_epoch * sampler_batch_size
-    env = GymEnv('CartPole-v0')
+    env = GymEnv("CartPole-v0")
 
     replay_buffer = PathBuffer(capacity_in_transitions=int(1e6))
 
     qf = DiscreteMLPQFunction(env_spec=env.spec, hidden_sizes=(8, 5))
 
     policy = DiscreteQFArgmaxPolicy(env_spec=env.spec, qf=qf)
-    exploration_policy = EpsilonGreedyPolicy(env_spec=env.spec,
-                                             policy=policy,
-                                             total_timesteps=num_timesteps,
-                                             max_epsilon=1.0,
-                                             min_epsilon=0.01,
-                                             decay_ratio=0.4)
-    sampler = LocalSampler(agents=exploration_policy,
-                           envs=env,
-                           max_episode_length=env.spec.max_episode_length,
-                           worker_class=FragmentWorker)
-    algo = DQN(env_spec=env.spec,
-               policy=policy,
-               qf=qf,
-               exploration_policy=exploration_policy,
-               replay_buffer=replay_buffer,
-               sampler=sampler,
-               steps_per_epoch=steps_per_epoch,
-               qf_lr=5e-5,
-               double_q=False,
-               discount=0.9,
-               min_buffer_size=int(1e4),
-               n_train_steps=500,
-               target_update_freq=30,
-               buffer_batch_size=64)
+    exploration_policy = EpsilonGreedyPolicy(
+        env_spec=env.spec, policy=policy, total_timesteps=num_timesteps, max_epsilon=1.0, min_epsilon=0.01, decay_ratio=0.4
+    )
+    sampler = LocalSampler(
+        agents=exploration_policy, envs=env, max_episode_length=env.spec.max_episode_length, worker_class=FragmentWorker
+    )
+    algo = DQN(
+        env_spec=env.spec,
+        policy=policy,
+        qf=qf,
+        exploration_policy=exploration_policy,
+        replay_buffer=replay_buffer,
+        sampler=sampler,
+        steps_per_epoch=steps_per_epoch,
+        qf_lr=5e-5,
+        double_q=False,
+        discount=0.9,
+        min_buffer_size=int(1e4),
+        n_train_steps=500,
+        target_update_freq=30,
+        buffer_batch_size=64,
+    )
 
     return algo, env, replay_buffer, n_epochs, sampler_batch_size
 
@@ -67,9 +65,7 @@ def setup():
 @pytest.mark.large
 def test_dqn_cartpole(setup):
     tempdir = tempfile.TemporaryDirectory()
-    config = SnapshotConfig(snapshot_dir=tempdir.name,
-                            snapshot_mode='last',
-                            snapshot_gap=1)
+    config = SnapshotConfig(snapshot_dir=tempdir.name, snapshot_mode="last", snapshot_gap=1)
 
     trainer = Trainer(config)
     algo, env, _, n_epochs, batch_size = setup
@@ -108,8 +104,7 @@ def test_dqn_loss(setup):
         best_qvals = best_qvals.unsqueeze(1)
 
     rewards_clipped = rewards
-    y_target = (rewards_clipped +
-                (1.0 - terminals) * algo._discount * best_qvals)
+    y_target = rewards_clipped + (1.0 - terminals) * algo._discount * best_qvals
     y_target = y_target.squeeze(1)
 
     # optimize qf
@@ -117,8 +112,7 @@ def test_dqn_loss(setup):
     selected_qs = torch.sum(qvals * actions, axis=1)
     qval_loss = F.smooth_l1_loss(selected_qs, y_target)
 
-    algo_loss, algo_targets, algo_selected_qs = algo._optimize_qf(
-        timesteps_copy)
+    algo_loss, algo_targets, algo_selected_qs = algo._optimize_qf(timesteps_copy)
     env.close()
 
     assert (qval_loss.detach() == algo_loss).all()
@@ -151,13 +145,10 @@ def test_double_dqn_loss(setup):
         selected_actions = torch.argmax(algo._qf(next_inputs), axis=1)
         # use target qf to get Q values for those actions
         selected_actions = selected_actions.long().unsqueeze(1)
-        best_qvals = torch.gather(algo._target_qf(next_inputs),
-                                  dim=1,
-                                  index=selected_actions)
+        best_qvals = torch.gather(algo._target_qf(next_inputs), dim=1, index=selected_actions)
 
     rewards_clipped = rewards
-    y_target = (rewards_clipped +
-                (1.0 - terminals) * algo._discount * best_qvals)
+    y_target = rewards_clipped + (1.0 - terminals) * algo._discount * best_qvals
     y_target = y_target.squeeze(1)
 
     # optimize qf
@@ -165,8 +156,7 @@ def test_double_dqn_loss(setup):
     selected_qs = torch.sum(qvals * actions, axis=1)
     qval_loss = F.smooth_l1_loss(selected_qs, y_target)
 
-    algo_loss, algo_targets, algo_selected_qs = algo._optimize_qf(
-        timesteps_copy)
+    algo_loss, algo_targets, algo_selected_qs = algo._optimize_qf(timesteps_copy)
     env.close()
 
     assert (qval_loss.detach() == algo_loss).all()
@@ -176,12 +166,12 @@ def test_double_dqn_loss(setup):
 
 def test_to_device(setup):
     algo, _, _, _, _ = setup
-    algo._qf.to = MagicMock(name='to')
-    algo._target_qf.to = MagicMock(name='to')
+    algo._qf.to = MagicMock(name="to")
+    algo._target_qf.to = MagicMock(name="to")
 
     algo._qf.to.return_value = algo._qf
     algo._target_qf.to.return_value = algo._target_qf
 
-    algo.to('cpu')
-    algo._qf.to.assert_called_once_with('cpu')
-    algo._target_qf.to.assert_called_once_with('cpu')
+    algo.to("cpu")
+    algo._qf.to.assert_called_once_with("cpu")
+    algo._target_qf.to.assert_called_once_with("cpu")

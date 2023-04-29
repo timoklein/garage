@@ -7,9 +7,8 @@ from garage.envs.wrappers import PixelObservationWrapper
 
 @pytest.mark.mujoco
 class TestPixelObservationWrapper:
-
     def setup_method(self):
-        self.env = gym.make('InvertedDoublePendulum-v2')
+        self.env = gym.make("InvertedDoublePendulum-v2")
         self.pixel_env = PixelObservationWrapper(self.env)
 
     def teardown_method(self):
@@ -28,11 +27,11 @@ class TestPixelObservationWrapper:
 
     def test_pixel_env_reset(self):
         obs = self.pixel_env.reset()
-        assert (obs <= 255.).all() and (obs >= 0.).all()
+        assert (obs <= 255.0).all() and (obs >= 0.0).all()
         assert isinstance(obs, np.ndarray)
 
     def test_pixel_env_step(self):
         self.pixel_env.reset()
         action = np.full(self.pixel_env.action_space.shape, 0)
         obs, _, _, _ = self.pixel_env.step(action)
-        assert (obs <= 255.).all() and (obs >= 0.).all()
+        assert (obs <= 255.0).all() and (obs >= 0.0).all()

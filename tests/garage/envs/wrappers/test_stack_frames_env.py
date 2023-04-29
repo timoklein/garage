@@ -8,12 +8,10 @@ from tests.fixtures.envs.dummy import DummyDiscrete2DEnv
 
 
 class TestStackFrames:
-
     def setup_method(self):
         self.n_frames = 4
         self.env = DummyDiscrete2DEnv(random=False)
-        self.env_s = StackFrames(DummyDiscrete2DEnv(random=False),
-                                 n_frames=self.n_frames)
+        self.env_s = StackFrames(DummyDiscrete2DEnv(random=False), n_frames=self.n_frames)
         self.width, self.height = self.env.observation_space.shape
 
     def teardown_method(self):
@@ -27,16 +25,12 @@ class TestStackFrames:
 
     def test_stack_frames_invalid_environment_shape(self):
         with pytest.raises(ValueError):
-            self.env.observation_space = gym.spaces.Box(low=0,
-                                                        high=255,
-                                                        shape=(4, ),
-                                                        dtype=np.uint8)
+            self.env.observation_space = gym.spaces.Box(low=0, high=255, shape=(4,), dtype=np.uint8)
             StackFrames(self.env, n_frames=4)
 
     def test_stack_frames_output_observation_space(self):
         print(self.env_s.observation_space.shape)
-        assert self.env_s.observation_space.shape == (self.width, self.height,
-                                                      self.n_frames)
+        assert self.env_s.observation_space.shape == (self.width, self.height, self.n_frames)
 
     def test_stack_frames_for_reset(self):
         frame_stack = self.env.reset()
@@ -59,22 +53,16 @@ class TestStackFrames:
         np.testing.assert_array_equal(obs_stack, frame_stack)
 
     def test_stack_frames_axis(self):
-        env = StackFrames(DummyDiscrete2DEnv(random=False),
-                          n_frames=self.n_frames,
-                          axis=0)
+        env = StackFrames(DummyDiscrete2DEnv(random=False), n_frames=self.n_frames, axis=0)
         env.reset()
         obs, _, _, _ = env.step(1)
         assert obs.shape[0] == self.n_frames
 
-        env = StackFrames(DummyDiscrete2DEnv(random=False),
-                          n_frames=self.n_frames,
-                          axis=2)
+        env = StackFrames(DummyDiscrete2DEnv(random=False), n_frames=self.n_frames, axis=2)
         env.reset()
         obs, _, _, _ = env.step(1)
         assert obs.shape[2] == self.n_frames
 
     def test_invalid_axis_raises_error(self):
         with pytest.raises(ValueError):
-            StackFrames(DummyDiscrete2DEnv(random=False),
-                        n_frames=self.n_frames,
-                        axis=5)
+            StackFrames(DummyDiscrete2DEnv(random=False), n_frames=self.n_frames, axis=5)

@@ -20,6 +20,14 @@ from garage.envs.wrappers.resize import Resize
 from garage.envs.wrappers.stack_frames import StackFrames
 
 __all__ = [
-    'AtariEnv', 'ClipReward', 'EpisodicLife', 'FireReset', 'Grayscale',
-    'MaxAndSkip', 'Noop', 'PixelObservationWrapper', 'Resize', 'StackFrames'
+    "AtariEnv",
+    "ClipReward",
+    "EpisodicLife",
+    "FireReset",
+    "Grayscale",
+    "MaxAndSkip",
+    "Noop",
+    "PixelObservationWrapper",
+    "Resize",
+    "StackFrames",
 ]

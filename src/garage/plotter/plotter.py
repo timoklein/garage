@@ -10,17 +10,18 @@ import numpy as np
 
 from garage import rollout
 
-__all__ = ['Plotter']
+__all__ = ["Plotter"]
 
 
 class Op(Enum):
     """Messages for the Plotter state machine."""
+
     STOP = 0
     UPDATE = 1
     DEMO = 2
 
 
-Message = namedtuple('Message', ['op', 'args', 'kwargs'])
+Message = namedtuple("Message", ["op", "args", "kwargs"])
 
 
 class Plotter:
@@ -69,16 +70,10 @@ class Plotter:
                     param_values, max_length = msgs[Op.DEMO].args
                     policy.set_param_values(param_values)
                     initial_rollout = False
-                    rollout(env,
-                            policy,
-                            max_episode_length=max_length,
-                            animated=True)
+                    rollout(env, policy, max_episode_length=max_length, animated=True)
                 else:
                     if max_length:
-                        rollout(env,
-                                policy,
-                                max_episode_length=max_length,
-                                animated=True)
+                        rollout(env, policy, max_episode_length=max_length, animated=True)
         except KeyboardInterrupt:
             pass
 
@@ -113,7 +108,7 @@ class Plotter:
         if not Plotter.enable:
             return
         self._queue = JoinableQueue()
-        if 'Darwin' in platform.platform():
+        if "Darwin" in platform.platform():
             self._process = Thread(target=self._worker_start)
         else:
             self._process = Process(target=self._worker_start)
@@ -136,7 +131,7 @@ class Plotter:
             self._init_worker()
 
         # Needed in order to draw glfw window on the main thread
-        if 'Darwin' in platform.platform():
+        if "Darwin" in platform.platform():
             rollout(env, policy, max_episode_length=np.inf, animated=True)
 
         self._queue.put(Message(op=Op.UPDATE, args=(env, policy), kwargs=None))
@@ -152,7 +147,4 @@ class Plotter:
         """
         if not Plotter.enable:
             return
-        self._queue.put(
-            Message(op=Op.DEMO,
-                    args=(policy.get_param_values(), max_length),
-                    kwargs=None))
+        self._queue.put(Message(op=Op.DEMO, args=(policy.get_param_values(), max_length), kwargs=None))

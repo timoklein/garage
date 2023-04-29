@@ -8,6 +8,6 @@ from garage.envs.mujoco.half_cheetah_dir_env import HalfCheetahDirEnv
 from garage.envs.mujoco.half_cheetah_vel_env import HalfCheetahVelEnv
 
 __all__ = [
-    'HalfCheetahDirEnv',
-    'HalfCheetahVelEnv',
+    "HalfCheetahDirEnv",
+    "HalfCheetahVelEnv",
 ]
