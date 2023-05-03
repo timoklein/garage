@@ -654,7 +654,7 @@ class LogEncoder(json.JSONEncoder):
                 # serializable.
                 # JSON doesn't actually have ints, so always use a float.
                 return float(o)
-            elif isinstance(o, np.bool8):
+            elif isinstance(o, np.bool_):
                 return bool(o)
             elif isinstance(o, enum.Enum):
                 return {"$enum": o.__module__ + "." + o.__class__.__name__ + "." + o.name}

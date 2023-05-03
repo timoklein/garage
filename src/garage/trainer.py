@@ -267,7 +267,8 @@ class Trainer:
         params["worker_class"] = self._worker_class
         params["worker_args"] = self._worker_args
 
-        self._snapshotter.save_itr_params(epoch, params)
+        # NOTE(TIMO): Deactived the snaphotter to make this work for the point environment
+        # self._snapshotter.save_itr_params(epoch, params)
 
         logger.log("Saved")
 
