@@ -369,9 +369,10 @@ class Trainer:
         self._plot = plot
         self._start_worker()
 
-        log_dir = self._snapshotter.snapshot_dir
-        summary_file = os.path.join(log_dir, "experiment.json")
-        dump_json(summary_file, self)
+        # NOTE: This generates a 40k line json that we don't need at all -> Remove for efficiency
+        # log_dir = self._snapshotter.snapshot_dir
+        # summary_file = os.path.join(log_dir, "experiment.json")
+        # dump_json(summary_file, self)
 
         average_return = self._algo.train(self)
         self._shutdown_worker()
